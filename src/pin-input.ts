@@ -6,6 +6,7 @@ const DEFAULT_AUTOCOMPLETE = 'one-time-code'
 
 class PinInput extends HTMLElement implements PinInputProps {
   private currentValue: string = ''
+  private isFocused: boolean = false
 
   static formAssociated = true
 
@@ -96,6 +97,16 @@ class PinInput extends HTMLElement implements PinInputProps {
     })
 
     this.addEventListener('click', () => this.$input?.focus())
+
+    this.$input?.addEventListener('focus', () => {
+      this.isFocused = true
+      this.updateSlots()
+    })
+
+    this.$input?.addEventListener('blur', () => {
+      this.isFocused = false
+      this.updateSlots()
+    })
   }
 
   attributeChangedCallback(
@@ -131,7 +142,9 @@ class PinInput extends HTMLElement implements PinInputProps {
     this.$slots.forEach((slot, index) => {
       const currentChar = this.currentValue[index] ?? ''
 
-      const isActive = index === this.currentValue.length && !this.disabled
+      const isActive =
+        index === this.currentValue.length && !this.disabled && this.isFocused
+
       const isFilled = index < this.currentValue.length
 
       slot.textContent = currentChar
