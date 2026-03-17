@@ -256,6 +256,13 @@ class PinInput extends HTMLElement implements PinInputProps {
 
     this.$input?.addEventListener('focus', () => {
       this.isFocused = true
+
+      // place cursor at end of current value on focus
+      this.$input?.setSelectionRange(
+        this.currentValue.length,
+        this.currentValue.length
+      )
+
       this.updateSlots()
     })
 
