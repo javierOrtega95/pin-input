@@ -21,6 +21,8 @@ class PinInput extends HTMLElement implements PinInputProps {
 
   private internals: ElementInternals
 
+  private patternRegex: RegExp = new RegExp(`^${DEFAULT_PATTERN}$`)
+
   constructor() {
     super()
     this.internals = this.attachInternals()
@@ -56,11 +58,11 @@ class PinInput extends HTMLElement implements PinInputProps {
     return this.hasAttribute('invalid')
   }
 
-  private get inputEl(): HTMLInputElement | null {
+  private get $input(): HTMLInputElement | null {
     return this.shadowRoot?.querySelector('input') ?? null
   }
 
-  private get slotEls(): Array<HTMLElement> {
+  private get $slots(): Array<HTMLElement> {
     if (!this.shadowRoot) return []
 
     const slots: NodeListOf<HTMLElement> =
@@ -76,24 +78,36 @@ class PinInput extends HTMLElement implements PinInputProps {
     this.render()
     this.updateSlots()
 
-    this.inputEl?.addEventListener('input', (e) => {
-      const input = e.target as HTMLInputElement
-      this.currentValue = input.value
+    this.$input?.addEventListener('input', (e) => {
+      const $target = e.target as HTMLInputElement
+
+      const validatedValue = $target.value
+        .split('')
+        .filter((char) => this.patternRegex.test(char))
+        .join('')
+
+      if (validatedValue !== $target.value) {
+        $target.value = validatedValue
+      }
+
+      this.currentValue = $target.value
 
       this.updateSlots()
     })
 
-    this.addEventListener('click', () => {
-      this.inputEl?.focus()
-    })
+    this.addEventListener('click', () => this.$input?.focus())
   }
 
   attributeChangedCallback(
-    _name: keyof PinInputProps,
+    name: keyof PinInputProps,
     oldValue: string | null,
     newValue: string | null
   ): void {
     if (oldValue === newValue) return
+
+    if (name === 'pattern') {
+      this.patternRegex = new RegExp(`^${this.pattern}$`)
+    }
 
     this.render()
   }
@@ -114,7 +128,7 @@ class PinInput extends HTMLElement implements PinInputProps {
   }
 
   private updateSlots(): void {
-    this.slotEls.forEach((slot, index) => {
+    this.$slots.forEach((slot, index) => {
       const currentChar = this.currentValue[index] ?? ''
 
       const isActive = index === this.currentValue.length && !this.disabled
@@ -131,7 +145,6 @@ class PinInput extends HTMLElement implements PinInputProps {
     })
   }
 
-  // Render
   private render(): void {
     if (!this.shadowRoot) return
 
