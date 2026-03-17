@@ -6,4 +6,5 @@ export interface PinInputProps {
   autocomplete?: string
   disabled?: boolean
   invalid?: boolean
+  autofocus?: boolean
 }

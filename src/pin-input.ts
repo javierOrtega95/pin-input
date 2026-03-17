@@ -20,6 +20,7 @@ class PinInput extends HTMLElement implements PinInputProps {
     'autocomplete',
     'disabled',
     'invalid',
+    'autofocus',
   ]
 
   private internals: ElementInternals
@@ -147,6 +148,10 @@ class PinInput extends HTMLElement implements PinInputProps {
 
       this.updateSlots()
     })
+
+    if (this.hasAttribute('autofocus')) {
+      this.$input?.focus()
+    }
   }
 
   attributeChangedCallback(
