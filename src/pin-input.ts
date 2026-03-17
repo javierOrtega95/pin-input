@@ -118,6 +118,35 @@ class PinInput extends HTMLElement implements PinInputProps {
       this.isFocused = false
       this.updateSlots()
     })
+
+    this.$input?.addEventListener('paste', (event) => {
+      event.preventDefault()
+
+      const cursorPosition =
+        this.$input?.selectionStart ?? this.currentValue.length
+
+      const pastedText = event.clipboardData?.getData('text') ?? ''
+
+      const validPasted = pastedText
+        .split('')
+        .filter((char) => this.patternRegex.test(char))
+        .join('')
+
+      if (!validPasted) return
+
+      const currentPin = this.currentValue.slice(0, cursorPosition)
+
+      const newValue = (currentPin + validPasted).slice(0, this.length)
+
+      this.currentValue = newValue
+
+      if (this.$input) {
+        this.$input.value = newValue
+        this.$input.setSelectionRange(newValue.length, newValue.length)
+      }
+
+      this.updateSlots()
+    })
   }
 
   attributeChangedCallback(
