@@ -40,11 +40,11 @@
         font-size: 24px;
         box-sizing: border-box;
         outline: none;
+        transition: border-color 0.15s ease;
       }
 
       pin-input::part(slot active) {
         border-color: #58a6ff;
-        transition: border-color 0.2s ease;
       }
     </style>
 
@@ -52,6 +52,9 @@
   </head>
 
   <body>
+    <!-- autofocus -->
+    <pin-input length="6" autofocus></pin-input>
+
     <!-- only numbers (default) -->
     <pin-input length="6"></pin-input>
 
@@ -60,8 +63,5 @@
 
     <!-- only uppercase letters -->
     <pin-input length="4" pattern="[A-Z]"></pin-input>
-
-    <!-- autofocus -->
-    <pin-input length="6" autofocus></pin-input>
   </body>
 </html>
