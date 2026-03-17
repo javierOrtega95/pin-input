@@ -4,6 +4,8 @@ const DEFAULT_LENGTH = 6
 const DEFAULT_PATTERN = '[0-9]'
 const DEFAULT_AUTOCOMPLETE = 'one-time-code'
 
+const ARROW_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
+
 class PinInput extends HTMLElement implements PinInputProps {
   private currentValue: string = ''
   private isFocused: boolean = false
@@ -79,8 +81,8 @@ class PinInput extends HTMLElement implements PinInputProps {
     this.render()
     this.updateSlots()
 
-    this.$input?.addEventListener('input', (e) => {
-      const $target = e.target as HTMLInputElement
+    this.$input?.addEventListener('input', (event) => {
+      const $target = event.target as HTMLInputElement
 
       const validatedValue = $target.value
         .split('')
@@ -91,9 +93,18 @@ class PinInput extends HTMLElement implements PinInputProps {
         $target.value = validatedValue
       }
 
+      // force cursor to the end
+      $target.setSelectionRange($target.value.length, $target.value.length)
+
       this.currentValue = $target.value
 
       this.updateSlots()
+    })
+
+    this.$input?.addEventListener('keydown', (event) => {
+      const isArrow = ARROW_KEYS.includes(event.key)
+
+      if (isArrow) event.preventDefault()
     })
 
     this.addEventListener('click', () => this.$input?.focus())
