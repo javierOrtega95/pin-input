@@ -21,6 +21,7 @@ class PinInput extends HTMLElement implements PinInputProps {
   private isFocused: boolean = false
   private cursorPositionBeforeInput: number = 0
   private lastKey: string = ''
+  private listenerController: AbortController = new AbortController()
 
   static formAssociated = true
 
@@ -93,216 +94,15 @@ class PinInput extends HTMLElement implements PinInputProps {
 
     this.render()
     this.updateSlots()
-
-    this.$input?.addEventListener('input', (event) => {
-      const $target = event.target as HTMLInputElement
-
-      // if cursor was inside the filled slots, we're replacing a character
-      // not appending — unless the last key was Backspace
-
-      const isCursorInsideFilled =
-        this.cursorPositionBeforeInput < this.currentValue.length
-
-      const isReplacing = isCursorInsideFilled && this.lastKey !== 'Backspace'
-
-      if (isReplacing) {
-        // extract the newly typed character at the cursor position
-        const newChar = $target.value[this.cursorPositionBeforeInput]
-
-        // if invalid or no char, restore previous value and bail
-        if (!newChar || !this.patternRegex.test(newChar)) {
-          $target.value = this.currentValue
-
-          return
-        }
-
-        // replace the character at cursor position, keep the rest
-        const newValue =
-          this.currentValue.slice(0, this.cursorPositionBeforeInput) +
-          newChar +
-          this.currentValue.slice(this.cursorPositionBeforeInput + 1)
-
-        $target.value = newValue
-        $target.setSelectionRange(
-          this.cursorPositionBeforeInput + 1,
-          this.cursorPositionBeforeInput + 1
-        )
-
-        this.currentValue = newValue
-        this.updateSlots()
-
-        return
-      }
-
-      // normal append — filter out characters that don't match the pattern
-
-      const validatedValue = $target.value
-        .split('')
-        .filter((char) => this.patternRegex.test(char))
-        .join('')
-
-      if (validatedValue !== $target.value) {
-        $target.value = validatedValue
-      }
-
-      // force cursor to the end
-      $target.setSelectionRange($target.value.length, $target.value.length)
-
-      this.currentValue = $target.value
-
-      this.updateSlots()
-    })
-
-    this.$input?.addEventListener('keydown', (event) => {
-      // prevent vertical arrows from jumping cursor to start/end of input
-      const isVerticalArrow = VERTICAL_ARROW_KEYS.includes(
-        event.key as NavigationKey
-      )
-
-      if (isVerticalArrow) event.preventDefault()
-
-      // track last key and cursor position before any input event fires
-      this.lastKey = event.key
-      this.cursorPositionBeforeInput = this.$input?.selectionStart ?? 0
-
-      if (event.key === NavigationKey.Backspace) {
-        event.preventDefault()
-
-        const cursorPosition = this.$input?.selectionStart ?? 0
-
-        if (this.currentValue.length === 0) return
-
-        // if current slot is empty, delete the previous character and move back
-        // otherwise delete the character at the current position
-
-        const isCursorAtEnd = cursorPosition >= this.currentValue.length
-
-        const currentSlotIsEmpty =
-          isCursorAtEnd || !this.currentValue[cursorPosition]
-
-        const startSlice = currentSlotIsEmpty
-          ? this.currentValue.slice(0, cursorPosition - 1)
-          : this.currentValue.slice(0, cursorPosition)
-
-        const endSlice = currentSlotIsEmpty
-          ? this.currentValue.slice(cursorPosition)
-          : this.currentValue.slice(cursorPosition + 1)
-
-        const newValue = startSlice + endSlice
-
-        const newPos = currentSlotIsEmpty ? cursorPosition - 1 : cursorPosition
-
-        this.currentValue = newValue
-
-        if (this.$input) {
-          this.$input.value = newValue
-          this.$input.setSelectionRange(newPos, newPos)
-        }
-
-        this.updateSlots()
-
-        return
-      }
-
-      if (event.key === NavigationKey.Delete) {
-        event.preventDefault()
-
-        const cursorPosition = this.$input?.selectionStart ?? 0
-
-        // nothing to delete if cursor is past the last filled slot
-        if (cursorPosition >= this.currentValue.length) return
-
-        // delete the character at the current position, cursor stays
-        const startSlice = this.currentValue.slice(0, cursorPosition)
-        const endSlice = this.currentValue.slice(cursorPosition + 1)
-
-        const newValue = startSlice + endSlice
-
-        this.currentValue = newValue
-
-        if (this.$input) {
-          this.$input.value = newValue
-          this.$input.setSelectionRange(cursorPosition, cursorPosition)
-        }
-
-        this.updateSlots()
-
-        return
-      }
-
-      const isHorizontalArrow = HORIZONTAL_ARROW_KEYS.includes(
-        event.key as NavigationKey
-      )
-
-      if (isHorizontalArrow) {
-        const cursorPosition = this.$input?.selectionStart ?? 0
-
-        const isLeftMove = event.key === NavigationKey.Left
-        const isRightMove = event.key === NavigationKey.Right
-
-        const isAtStart = cursorPosition <= 0
-        const isAtEnd = cursorPosition >= this.currentValue.length
-
-        if ((isLeftMove && isAtStart) || (isRightMove && isAtEnd)) {
-          event.preventDefault()
-        }
-
-        // defer update to next frame so cursor has already moved
-        requestAnimationFrame(() => this.updateSlots())
-      }
-    })
-
-    this.addEventListener('click', () => this.$input?.focus())
-
-    this.$input?.addEventListener('focus', () => {
-      this.isFocused = true
-
-      // place cursor at end of current value on focus
-      this.$input?.setSelectionRange(
-        this.currentValue.length,
-        this.currentValue.length
-      )
-
-      this.updateSlots()
-    })
-
-    this.$input?.addEventListener('blur', () => {
-      this.isFocused = false
-      this.updateSlots()
-    })
-
-    this.$input?.addEventListener('paste', (event) => {
-      event.preventDefault()
-
-      const cursorPosition =
-        this.$input?.selectionStart ?? this.currentValue.length
-
-      const pastedText = event.clipboardData?.getData('text') ?? ''
-
-      const validPasted = pastedText
-        .split('')
-        .filter((char) => this.patternRegex.test(char))
-        .join('')
-
-      if (!validPasted) return
-
-      const currentPin = this.currentValue.slice(0, cursorPosition)
-
-      const newValue = (currentPin + validPasted).slice(0, this.length)
-
-      this.currentValue = newValue
-
-      if (this.$input) {
-        this.$input.value = newValue
-        this.$input.setSelectionRange(newValue.length, newValue.length)
-      }
-
-      this.updateSlots()
-    })
+    this.setupListeners()
 
     if (this.hasAttribute('autofocus')) {
       this.$input?.focus()
     }
+  }
+
+  disconnectedCallback(): void {
+    this.listenerController.abort()
   }
 
   attributeChangedCallback(
@@ -316,7 +116,260 @@ class PinInput extends HTMLElement implements PinInputProps {
       this.patternRegex = new RegExp(`^${this.pattern}$`)
     }
 
-    this.render()
+    if (name === 'length') {
+      this.currentValue = ''
+
+      this.render()
+      this.updateSlots()
+      this.setupListeners()
+
+      return
+    }
+
+    if (name === 'value') {
+      this.currentValue = this.value
+      if (this.$input) this.$input.value = this.currentValue
+      this.updateSlots()
+      return
+    }
+
+    // for all other attributes, just update slots — no re-render needed
+    this.updateSlots()
+  }
+
+  private setupListeners(): void {
+    // remove previous listeners before adding new ones
+    this.listenerController.abort()
+    this.listenerController = new AbortController()
+    const { signal } = this.listenerController
+
+    this.$input?.addEventListener(
+      'input',
+      (event) => {
+        const $target = event.target as HTMLInputElement
+
+        // if cursor was inside the filled slots, we're replacing a character
+        // not appending — unless the last key was Backspace
+
+        const isCursorInsideFilled =
+          this.cursorPositionBeforeInput < this.currentValue.length
+
+        const isReplacing = isCursorInsideFilled && this.lastKey !== 'Backspace'
+
+        if (isReplacing) {
+          // extract the newly typed character at the cursor position
+          const newChar = $target.value[this.cursorPositionBeforeInput]
+
+          // if invalid or no char, restore previous value and bail
+          if (!newChar || !this.patternRegex.test(newChar)) {
+            $target.value = this.currentValue
+
+            return
+          }
+
+          // replace the character at cursor position, keep the rest
+          const newValue =
+            this.currentValue.slice(0, this.cursorPositionBeforeInput) +
+            newChar +
+            this.currentValue.slice(this.cursorPositionBeforeInput + 1)
+
+          $target.value = newValue
+          $target.setSelectionRange(
+            this.cursorPositionBeforeInput + 1,
+            this.cursorPositionBeforeInput + 1
+          )
+
+          this.currentValue = newValue
+          this.updateSlots()
+
+          return
+        }
+
+        // normal append — filter out characters that don't match the pattern
+
+        const validatedValue = $target.value
+          .split('')
+          .filter((char) => this.patternRegex.test(char))
+          .join('')
+
+        if (validatedValue !== $target.value) {
+          $target.value = validatedValue
+        }
+
+        // force cursor to the end
+        $target.setSelectionRange($target.value.length, $target.value.length)
+
+        this.currentValue = $target.value
+
+        this.updateSlots()
+      },
+      { signal }
+    )
+
+    this.$input?.addEventListener(
+      'keydown',
+      (event) => {
+        // prevent vertical arrows from jumping cursor to start/end of input
+        const isVerticalArrow = VERTICAL_ARROW_KEYS.includes(
+          event.key as NavigationKey
+        )
+
+        if (isVerticalArrow) event.preventDefault()
+
+        // track last key and cursor position before any input event fires
+        this.lastKey = event.key
+        this.cursorPositionBeforeInput = this.$input?.selectionStart ?? 0
+
+        if (event.key === NavigationKey.Backspace) {
+          event.preventDefault()
+
+          const cursorPosition = this.$input?.selectionStart ?? 0
+
+          if (this.currentValue.length === 0) return
+
+          // if current slot is empty, delete the previous character and move back
+          // otherwise delete the character at the current position
+
+          const isCursorAtEnd = cursorPosition >= this.currentValue.length
+
+          const currentSlotIsEmpty =
+            isCursorAtEnd || !this.currentValue[cursorPosition]
+
+          const startSlice = currentSlotIsEmpty
+            ? this.currentValue.slice(0, cursorPosition - 1)
+            : this.currentValue.slice(0, cursorPosition)
+
+          const endSlice = currentSlotIsEmpty
+            ? this.currentValue.slice(cursorPosition)
+            : this.currentValue.slice(cursorPosition + 1)
+
+          const newValue = startSlice + endSlice
+
+          const newPos = currentSlotIsEmpty
+            ? cursorPosition - 1
+            : cursorPosition
+
+          this.currentValue = newValue
+
+          if (this.$input) {
+            this.$input.value = newValue
+            this.$input.setSelectionRange(newPos, newPos)
+          }
+
+          this.updateSlots()
+
+          return
+        }
+
+        if (event.key === NavigationKey.Delete) {
+          event.preventDefault()
+
+          const cursorPosition = this.$input?.selectionStart ?? 0
+
+          // nothing to delete if cursor is past the last filled slot
+          if (cursorPosition >= this.currentValue.length) return
+
+          // delete the character at the current position, cursor stays
+          const startSlice = this.currentValue.slice(0, cursorPosition)
+          const endSlice = this.currentValue.slice(cursorPosition + 1)
+
+          const newValue = startSlice + endSlice
+
+          this.currentValue = newValue
+
+          if (this.$input) {
+            this.$input.value = newValue
+            this.$input.setSelectionRange(cursorPosition, cursorPosition)
+          }
+
+          this.updateSlots()
+
+          return
+        }
+
+        const isHorizontalArrow = HORIZONTAL_ARROW_KEYS.includes(
+          event.key as NavigationKey
+        )
+
+        if (isHorizontalArrow) {
+          const cursorPosition = this.$input?.selectionStart ?? 0
+
+          const isLeftMove = event.key === NavigationKey.Left
+          const isRightMove = event.key === NavigationKey.Right
+
+          const isAtStart = cursorPosition <= 0
+          const isAtEnd = cursorPosition >= this.currentValue.length
+
+          if ((isLeftMove && isAtStart) || (isRightMove && isAtEnd)) {
+            event.preventDefault()
+          }
+
+          // defer update to next frame so cursor has already moved
+          requestAnimationFrame(() => this.updateSlots())
+        }
+      },
+      { signal }
+    )
+
+    this.addEventListener('click', () => this.$input?.focus(), { signal })
+
+    this.$input?.addEventListener(
+      'focus',
+      () => {
+        this.isFocused = true
+
+        // place cursor at end of current value on focus
+        this.$input?.setSelectionRange(
+          this.currentValue.length,
+          this.currentValue.length
+        )
+
+        this.updateSlots()
+      },
+      { signal }
+    )
+
+    this.$input?.addEventListener(
+      'blur',
+      () => {
+        this.isFocused = false
+        this.updateSlots()
+      },
+      { signal }
+    )
+
+    this.$input?.addEventListener(
+      'paste',
+      (event) => {
+        event.preventDefault()
+
+        const cursorPosition =
+          this.$input?.selectionStart ?? this.currentValue.length
+
+        const pastedText = event.clipboardData?.getData('text') ?? ''
+
+        const validPasted = pastedText
+          .split('')
+          .filter((char) => this.patternRegex.test(char))
+          .join('')
+
+        if (!validPasted) return
+
+        const currentPin = this.currentValue.slice(0, cursorPosition)
+
+        const newValue = (currentPin + validPasted).slice(0, this.length)
+
+        this.currentValue = newValue
+
+        if (this.$input) {
+          this.$input.value = newValue
+          this.$input.setSelectionRange(newValue.length, newValue.length)
+        }
+
+        this.updateSlots()
+      },
+      { signal }
+    )
   }
 
   private buildInput(): string {
@@ -335,8 +388,10 @@ class PinInput extends HTMLElement implements PinInputProps {
   }
 
   private updateSlots(): void {
-    const cursorPosition =
-      this.$input?.selectionStart ?? this.currentValue.length
+    const cursorPosition = Math.min(
+      this.$input?.selectionStart ?? this.currentValue.length,
+      this.length - 1
+    )
 
     this.$slots.forEach((slot, index) => {
       const currentChar = this.currentValue[index] ?? ''
