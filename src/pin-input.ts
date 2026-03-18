@@ -303,6 +303,8 @@ class PinInput extends HTMLElement implements PinInputProps {
 
           if ((isLeftMove && isAtStart) || (isRightMove && isAtEnd)) {
             event.preventDefault()
+
+            return
           }
 
           // defer update to next frame so cursor has already moved
