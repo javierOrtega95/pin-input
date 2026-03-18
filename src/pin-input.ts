@@ -18,6 +18,7 @@ const VERTICAL_ARROW_KEYS = [NavigationKey.Up, NavigationKey.Down]
 
 class PinInput extends HTMLElement implements PinInputProps {
   private currentValue: string = ''
+  private lastEmittedValue: string = ''
   private isFocused: boolean = false
   private cursorPositionBeforeInput: number = 0
   private lastKey: string = ''
@@ -410,6 +411,29 @@ class PinInput extends HTMLElement implements PinInputProps {
           .join(' ')
       )
     })
+
+    const isComplete = this.currentValue.length === this.length
+
+    // emit change event if value has changed since last emission
+    if (this.currentValue !== this.lastEmittedValue) {
+      this.lastEmittedValue = this.currentValue
+
+      this.dispatchEvent(
+        new CustomEvent('pin-change', {
+          detail: { value: this.currentValue },
+          bubbles: true,
+        })
+      )
+
+      if (isComplete) {
+        this.dispatchEvent(
+          new CustomEvent('pin-complete', {
+            detail: { value: this.currentValue },
+            bubbles: true,
+          })
+        )
+      }
+    }
   }
 
   private render(): void {
