@@ -404,11 +404,13 @@ class PinInput extends HTMLElement implements PinInputProps {
 
       const isFilled = index < this.currentValue.length
 
+      const isError = this.invalid
+
       slot.textContent = currentChar
 
       slot.setAttribute(
         'part',
-        ['slot', isActive && 'active', isFilled && 'filled']
+        ['slot', isActive && 'active', isFilled && 'filled', isError && 'error']
           .filter(Boolean)
           .join(' ')
       )
