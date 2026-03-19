@@ -159,7 +159,8 @@ class PinInput extends HTMLElement implements PinInputProps {
         const isCursorInsideFilled =
           this.cursorPositionBeforeInput < this.currentValue.length
 
-        const isReplacing = isCursorInsideFilled && this.lastKey !== 'Backspace'
+        const isReplacing =
+          isCursorInsideFilled && this.lastKey !== NavigationKey.Backspace
 
         if (isReplacing) {
           // extract the newly typed character at the cursor position
@@ -196,13 +197,15 @@ class PinInput extends HTMLElement implements PinInputProps {
           .split('')
           .filter((char) => this.patternRegex.test(char))
           .join('')
+          .slice(0, this.length)
 
         if (validatedValue !== $target.value) {
           $target.value = validatedValue
         }
 
         // force cursor to the end
-        $target.setSelectionRange($target.value.length, $target.value.length)
+        const endPos = Math.min($target.value.length, this.length - 1)
+        $target.setSelectionRange(endPos, endPos)
 
         this.currentValue = $target.value
 
@@ -217,6 +220,37 @@ class PinInput extends HTMLElement implements PinInputProps {
         // track last key and cursor position before any input event fires
         this.lastKey = event.key
         this.cursorPositionBeforeInput = this.$input?.selectionStart ?? 0
+
+        // when input is complete and cursor is on a filled slot,
+        // handle replacement directly to avoid maxlength issues
+        const isComplete = this.currentValue.length === this.length
+        const isAtFilledSlot =
+          this.cursorPositionBeforeInput < this.currentValue.length
+
+        if (isComplete && isAtFilledSlot && event.key.length === 1) {
+          event.preventDefault()
+
+          if (!this.patternRegex.test(event.key)) return
+
+          const currentPosition = this.cursorPositionBeforeInput
+          const newValue =
+            this.currentValue.slice(0, currentPosition) +
+            event.key +
+            this.currentValue.slice(currentPosition + 1)
+
+          const nextPos = Math.min(currentPosition + 1, this.length - 1)
+
+          this.currentValue = newValue
+
+          if (this.$input) {
+            this.$input.value = newValue
+            this.$input.setSelectionRange(nextPos, nextPos)
+          }
+
+          this.updateSlots()
+
+          return
+        }
 
         if (JUMP_TO_START_KEYS.includes(event.key as NavigationKey)) {
           event.preventDefault()
@@ -346,11 +380,9 @@ class PinInput extends HTMLElement implements PinInputProps {
         this.isFocused = true
 
         // place cursor at end of current value on focus
-        this.$input?.setSelectionRange(
-          this.currentValue.length,
-          this.currentValue.length
-        )
+        const cursorPos = Math.min(this.currentValue.length, this.length - 1)
 
+        this.$input?.setSelectionRange(cursorPos, cursorPos)
         this.updateSlots()
       },
       { signal }
@@ -403,7 +435,6 @@ class PinInput extends HTMLElement implements PinInputProps {
     const attrs = [
       `type="text"`,
       `autocomplete="${this.autocomplete}"`,
-      `maxlength="${this.length}"`,
       `value="${this.currentValue}"`,
       this.name ? `name="${this.name}"` : '',
       this.disabled ? 'disabled' : '',
