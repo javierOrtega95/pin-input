@@ -7,4 +7,5 @@ export interface PinInputProps {
   disabled?: boolean
   invalid?: boolean
   autofocus?: boolean
+  separators?: string
 }

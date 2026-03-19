@@ -39,6 +39,7 @@ class PinInput extends HTMLElement implements PinInputProps {
     'disabled',
     'invalid',
     'autofocus',
+    'separators',
   ]
 
   private internals: ElementInternals
@@ -80,6 +81,10 @@ class PinInput extends HTMLElement implements PinInputProps {
     return this.hasAttribute('invalid')
   }
 
+  get separators(): string {
+    return this.getAttribute('separators') ?? ''
+  }
+
   private get $input(): HTMLInputElement | null {
     return this.shadowRoot?.querySelector('input') ?? null
   }
@@ -91,6 +96,12 @@ class PinInput extends HTMLElement implements PinInputProps {
       this.shadowRoot.querySelectorAll('[part~="slot"]')
 
     return Array.from(slots)
+  }
+
+  private get separatorPositions(): number[] {
+    if (!this.separators) return []
+
+    return this.separators.split(',').map(Number)
   }
 
   // Lifecycle
@@ -121,7 +132,7 @@ class PinInput extends HTMLElement implements PinInputProps {
       this.patternRegex = new RegExp(`^${this.pattern}$`)
     }
 
-    if (name === 'length') {
+    if (name === 'length' || name === 'separators') {
       this.currentValue = ''
 
       this.render()
@@ -431,6 +442,19 @@ class PinInput extends HTMLElement implements PinInputProps {
     )
   }
 
+  private buildSlots(): string {
+    return Array.from({ length: this.length })
+      .map((_, index) => {
+        const slot = `<div part="slot"></div>`
+        const separator = this.separatorPositions.includes(index + 1)
+          ? `<span part="separator"></span>`
+          : ''
+
+        return slot + separator
+      })
+      .join('')
+  }
+
   private buildInput(): string {
     const attrs = [
       `type="text"`,
@@ -525,9 +549,7 @@ class PinInput extends HTMLElement implements PinInputProps {
     </style>
 
     <div part="wrapper">
-      ${Array.from({ length: this.length })
-        .map(() => `<div part="slot"></div>`)
-        .join('')}
+      ${this.buildSlots()}
 
       ${this.buildInput()}
     </div>
