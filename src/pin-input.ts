@@ -505,7 +505,6 @@ class PinInput extends HTMLElement implements PinInputProps {
       }
 
       :host([disabled]) {
-        opacity: 0.5;
         pointer-events: none;
       }
 
