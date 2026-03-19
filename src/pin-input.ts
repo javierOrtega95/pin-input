@@ -11,10 +11,14 @@ enum NavigationKey {
   Right = 'ArrowRight',
   Backspace = 'Backspace',
   Delete = 'Delete',
+  Home = 'Home',
+  End = 'End',
 }
 
 const HORIZONTAL_ARROW_KEYS = [NavigationKey.Left, NavigationKey.Right]
-const VERTICAL_ARROW_KEYS = [NavigationKey.Up, NavigationKey.Down]
+
+const JUMP_TO_START_KEYS = [NavigationKey.Up, NavigationKey.Home]
+const JUMP_TO_END_KEYS = [NavigationKey.Down, NavigationKey.End]
 
 class PinInput extends HTMLElement implements PinInputProps {
   private currentValue: string = ''
@@ -210,16 +214,36 @@ class PinInput extends HTMLElement implements PinInputProps {
     this.$input?.addEventListener(
       'keydown',
       (event) => {
-        // prevent vertical arrows from jumping cursor to start/end of input
-        const isVerticalArrow = VERTICAL_ARROW_KEYS.includes(
-          event.key as NavigationKey
-        )
-
-        if (isVerticalArrow) event.preventDefault()
-
         // track last key and cursor position before any input event fires
         this.lastKey = event.key
         this.cursorPositionBeforeInput = this.$input?.selectionStart ?? 0
+
+        if (JUMP_TO_START_KEYS.includes(event.key as NavigationKey)) {
+          event.preventDefault()
+
+          if (this.$input?.selectionStart === 0) return
+
+          this.$input?.setSelectionRange(0, 0)
+          requestAnimationFrame(() => this.updateSlots())
+
+          return
+        }
+
+        if (JUMP_TO_END_KEYS.includes(event.key as NavigationKey)) {
+          event.preventDefault()
+
+          const endPosition = Math.min(
+            this.currentValue.length,
+            this.length - 1
+          )
+
+          if (this.$input?.selectionStart === endPosition) return
+
+          this.$input?.setSelectionRange(endPosition, endPosition)
+          requestAnimationFrame(() => this.updateSlots())
+
+          return
+        }
 
         if (event.key === NavigationKey.Backspace) {
           event.preventDefault()
