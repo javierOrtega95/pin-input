@@ -3,9 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <title>pin-input</title>
     <style>
       *,
@@ -16,64 +14,139 @@
         padding: 0;
       }
 
+      :root {
+        --bg: #0a0a0f;
+        --surface: #111118;
+        --border: #1e1e2e;
+        --text-primary: #e8e8f0;
+        --text-muted: #4a4a6a;
+        --text-label: #6a6a8a;
+        --blue: #58a6ff;
+        --red: #f85149;
+      }
+
       body {
         height: 100vh;
         display: grid;
         place-items: center;
+        background: var(--bg);
         font-family: monospace;
-        background: #0d1117;
-        margin: 0;
+      }
+
+      .demo-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 32px;
+        width: 100%;
+        max-width: 420px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .demo-header {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .demo-label {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-label);
+      }
+
+      .demo-title {
+        font-size: 18px;
+        font-weight: 400;
+        color: var(--text-primary);
+      }
+
+      .demo-desc {
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.5;
       }
 
       pin-input::part(wrapper) {
-        gap: 8px;
+        gap: 10px;
       }
 
       pin-input::part(slot) {
-        width: 48px;
-        height: 56px;
+        width: 44px;
+        height: 52px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-bottom: 2px solid #30363d;
-        color: #e6edf3;
-        font-size: 24px;
-        box-sizing: border-box;
-        outline: none;
+        border: 1px solid #1e2030;
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 22px;
         transition: border-color 0.15s ease;
       }
 
-      pin-input::part(slot active) {
-        border-color: #58a6ff;
+      pin-input::part(slot active),
+      pin-input::part(slot active filled) {
+        border-color: var(--blue);
+      }
+
+      pin-input::part(slot error) {
+        border-color: var(--red);
+      }
+
+      pin-input[disabled] {
+        opacity: 0.5;
+      }
+
+      pin-input::part(separator) {
+        width: 8px;
+        height: 2px;
+        background: var(--text-muted);
+        align-self: center;
       }
     </style>
-
     <script type="module" src="/src/pin-input.ts"></script>
   </head>
 
   <body>
-    <!-- autofocus -->
-    <pin-input length="6" autofocus></pin-input>
+    <div class="demo-card">
+      <div class="demo-header">
+        <span class="demo-label">Two-factor auth</span>
+        <span class="demo-title">Enter verification code</span>
+        <span class="demo-desc">We sent a 6-digit code to your phone.</span>
+      </div>
 
-    <!-- only numbers (default) -->
-    <pin-input length="6"></pin-input>
+      <form id="form">
+        <pin-input name="otp" length="6" autofocus separators="3"></pin-input>
 
-    <!-- alphanumeric -->
-    <pin-input length="8" pattern="[a-zA-Z0-9]"></pin-input>
-
-    <!-- only uppercase letters -->
-    <pin-input length="4" pattern="[A-Z]"></pin-input>
+        <button
+          type="submit"
+          style="margin-top: 16px; padding: 8px 16px; cursor: pointer"
+        >
+          Verify
+        </button>
+      </form>
+    </div>
   </body>
 
   <script>
-    document.querySelectorAll('pin-input').forEach((input) => {
-      input.addEventListener('pin-change', (e) => {
-        console.log('change:', e.detail.value)
-      })
+    document.querySelector('pin-input').addEventListener('pin-change', (e) => {
+      console.log('change:', e.detail.value)
+    })
 
-      input.addEventListener('pin-complete', (e) => {
+    document
+      .querySelector('pin-input')
+      .addEventListener('pin-complete', (e) => {
         console.log('complete:', e.detail.value)
       })
+
+    document.querySelector('#form').addEventListener('submit', (e) => {
+      e.preventDefault()
+      const data = new FormData(e.target)
+      console.log('otp:', data.get('otp'))
     })
   </script>
 </html>

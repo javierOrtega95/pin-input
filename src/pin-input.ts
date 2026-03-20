@@ -517,6 +517,9 @@ class PinInput extends HTMLElement implements PinInputProps {
         )
       }
     }
+
+    // sync value with the form
+    this.internals.setFormValue(this.currentValue)
   }
 
   private render(): void {
