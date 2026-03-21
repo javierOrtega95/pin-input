@@ -486,7 +486,9 @@ class PinInput extends HTMLElement implements PinInputProps {
           const isRightMove = event.key === Key.Right
 
           const isAtStart = cursorPosition <= 0
-          const isAtEnd = cursorPosition >= this.currentValue.length
+          const isAtEnd =
+            cursorPosition >=
+            Math.min(this.currentValue.length, this.length - 1)
 
           if ((isLeftMove && isAtStart) || (isRightMove && isAtEnd)) {
             event.preventDefault()
