@@ -97,6 +97,14 @@
         border-color: var(--red);
       }
 
+      pin-input::part(cursor) {
+        display: inline-block;
+        width: 2px;
+        height: 22px;
+        background: var(--blue);
+        animation: blink 1s step-end infinite;
+      }
+
       pin-input[disabled] {
         opacity: 0.5;
       }

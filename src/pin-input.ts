@@ -146,8 +146,11 @@ class PinInput extends HTMLElement implements PinInputProps {
 
     if (name === 'value') {
       this.currentValue = this.value
+
       if (this.$input) this.$input.value = this.currentValue
+
       this.updateSlots()
+
       return
     }
 
@@ -159,6 +162,7 @@ class PinInput extends HTMLElement implements PinInputProps {
     // remove previous listeners before adding new ones
     this.listenerController.abort()
     this.listenerController = new AbortController()
+
     const { signal } = this.listenerController
 
     this.$input?.addEventListener(
@@ -182,6 +186,7 @@ class PinInput extends HTMLElement implements PinInputProps {
 
           if (!newChar || !this.patternRegex.test(newChar)) {
             $target.value = this.currentValue
+
             return
           }
 
@@ -606,7 +611,10 @@ class PinInput extends HTMLElement implements PinInputProps {
 
       const isError = this.invalid
 
-      slot.textContent = currentChar
+      const cursorHtml =
+        isActive && !currentChar ? `<span part="cursor"></span>` : ''
+
+      slot.innerHTML = currentChar + cursorHtml
 
       slot.setAttribute(
         'part',
@@ -654,6 +662,10 @@ class PinInput extends HTMLElement implements PinInputProps {
 
     this.shadowRoot.innerHTML = `
     <style>
+      @keyframes blink {
+        50% { opacity: 0; }
+      }
+
       :host {
         display: inline-block;
       }
