@@ -42,6 +42,9 @@ class PinInput extends HTMLElement implements PinInputProps {
     'invalid',
     'autofocus',
     'separators',
+    'required',
+    'aria-label',
+    'aria-describedby',
   ]
 
   private internals: ElementInternals
@@ -87,6 +90,18 @@ class PinInput extends HTMLElement implements PinInputProps {
     return this.getAttribute('separators') ?? ''
   }
 
+  get required(): boolean {
+    return this.hasAttribute('required')
+  }
+
+  get ariaLabel(): string | null {
+    return this.getAttribute('aria-label')
+  }
+
+  get ariaDescribedBy(): string | null {
+    return this.getAttribute('aria-describedby')
+  }
+
   private get $input(): HTMLInputElement | null {
     return this.shadowRoot?.querySelector('input') ?? null
   }
@@ -98,6 +113,10 @@ class PinInput extends HTMLElement implements PinInputProps {
       this.shadowRoot.querySelectorAll('[part~="slot"]')
 
     return Array.from(slots)
+  }
+
+  private get $wrapper(): HTMLElement | null {
+    return this.shadowRoot?.querySelector('[part="wrapper"]') ?? null
   }
 
   private get separatorPositions(): number[] {
@@ -585,7 +604,11 @@ class PinInput extends HTMLElement implements PinInputProps {
       `autocomplete="${this.autocomplete}"`,
       `value="${this.currentValue}"`,
       this.name ? `name="${this.name}"` : '',
-      this.disabled ? 'disabled' : '',
+      this.disabled ? 'disabled aria-disabled="true"' : '',
+      this.invalid ? 'aria-invalid="true"' : '',
+      this.required ? 'required aria-required="true"' : '',
+      this.ariaLabel ? `aria-label="${this.ariaLabel}"` : '',
+      this.ariaDescribedBy ? `aria-describedby="${this.ariaDescribedBy}"` : '',
     ]
       .filter(Boolean)
       .join(' ')
@@ -653,6 +676,29 @@ class PinInput extends HTMLElement implements PinInputProps {
       }
     }
 
+    // sync aria attributes
+    this.$input?.setAttribute('aria-invalid', String(this.invalid))
+    this.$input?.setAttribute('aria-required', String(this.required))
+    this.$input?.setAttribute('aria-disabled', String(this.disabled))
+
+    if (this.ariaLabel) {
+      this.$input?.setAttribute('aria-label', this.ariaLabel)
+    } else {
+      this.$input?.removeAttribute('aria-label')
+    }
+
+    if (this.ariaDescribedBy) {
+      this.$input?.setAttribute('aria-describedby', this.ariaDescribedBy)
+    } else {
+      this.$input?.removeAttribute('aria-describedby')
+    }
+
+    if (this.ariaLabel) {
+      this.$wrapper?.setAttribute('aria-label', this.ariaLabel)
+    } else {
+      this.$wrapper?.removeAttribute('aria-label')
+    }
+
     // sync value with the form
     this.internals.setFormValue(this.currentValue)
   }
@@ -690,7 +736,7 @@ class PinInput extends HTMLElement implements PinInputProps {
       }
     </style>
 
-    <div part="wrapper">
+    <div part="wrapper" role="group" ${this.ariaLabel ? `aria-label="${this.ariaLabel}"` : ''}>
       ${this.buildSlots()}
 
       ${this.buildInput()}

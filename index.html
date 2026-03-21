@@ -133,7 +133,14 @@
       </div>
 
       <form id="form">
-        <pin-input name="otp" length="6" autofocus separators="3"></pin-input>
+        <pin-input
+          name="otp"
+          length="6"
+          autofocus
+          separators="3"
+          aria-label="Enter your 6-digit verification code"
+          aria-describedby="otp-hint"
+        ></pin-input>
 
         <button
           type="submit"

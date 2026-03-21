@@ -8,4 +8,7 @@ export interface PinInputProps {
   invalid?: boolean
   autofocus?: boolean
   separators?: string
+  required?: boolean
+  'aria-label'?: string
+  'aria-describedby'?: string
 }
