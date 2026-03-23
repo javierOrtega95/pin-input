@@ -1,5 +1,6 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import { resolve } from 'path'
+import { playwright } from '@vitest/browser-playwright'
 
 export default defineConfig({
   build: {
@@ -11,6 +12,14 @@ export default defineConfig({
       fileName: 'pin-input',
 
       formats: ['es', 'cjs', 'umd'],
+    },
+  },
+  test: {
+    setupFiles: ['./tests/setup.ts'],
+    browser: {
+      enabled: true,
+      provider: playwright(),
+      instances: [{ browser: 'chromium' }],
     },
   },
 })
