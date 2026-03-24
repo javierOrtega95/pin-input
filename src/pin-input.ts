@@ -14,6 +14,7 @@ import {
 import { setupInputListener } from './listeners/input.listener'
 import { setupKeydownListener } from './listeners/keydown.listener'
 import { setupPasteListener } from './listeners/paste.listener'
+import { renderHTML } from './render'
 import type { PinInputAttributes } from './types'
 import { syncAriaAttributes } from './update/aria'
 import { emitEvents } from './update/events'
@@ -317,8 +318,25 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       getSlots: () => this.$slots,
     })
 
-    this.emitEvents()
-    this.syncAriaAttributes()
+    emitEvents({
+      getCurrentValue: () => this.currentValue,
+      getLastEmittedValue: () => this.lastEmittedValue,
+      getLength: () => this.length,
+      setLastEmittedValue: (value) => {
+        this.lastEmittedValue = value
+      },
+      dispatchEvent: (event) => this.dispatchEvent(event),
+    })
+
+    syncAriaAttributes({
+      getInvalid: () => this.invalid,
+      getRequired: () => this.required,
+      getDisabled: () => this.disabled,
+      getAriaLabel: () => this.ariaLabel,
+      getAriaDescribedBy: () => this.ariaDescribedBy,
+      getInput: () => this.$input,
+      getWrapper: () => this.$wrapper,
+    })
 
     syncFormState({
       getCurrentValue: () => this.currentValue,
@@ -329,101 +347,23 @@ class PinInput extends HTMLElement implements PinInputAttributes {
     })
   }
 
-  private emitEvents(): void {
-    emitEvents({
-      getCurrentValue: () => this.currentValue,
-      getLastEmittedValue: () => this.lastEmittedValue,
-      getLength: () => this.length,
-      setLastEmittedValue: (value) => {
-        this.lastEmittedValue = value
-      },
-      dispatchEvent: (event) => this.dispatchEvent(event),
-    })
-  }
-
-  private syncAriaAttributes(): void {
-    syncAriaAttributes({
-      getInvalid: () => this.invalid,
-      getRequired: () => this.required,
-      getDisabled: () => this.disabled,
-      getAriaLabel: () => this.ariaLabel,
-      getAriaDescribedBy: () => this.ariaDescribedBy,
-      getInput: () => this.$input,
-      getWrapper: () => this.$wrapper,
-    })
-  }
-
   // ─── Render ───────────────────────────────
-  private buildSlots(): string {
-    return Array.from({ length: this.length })
-      .map((_, index) => {
-        const slot = `<div part="slot"></div>`
-        const separator = this.separatorPositions.includes(index + 1)
-          ? `<span part="separator"></span>`
-          : ''
-
-        return slot + separator
-      })
-      .join('')
-  }
-
-  private buildInput(): string {
-    const attrs = [
-      `type="text"`,
-      `autocomplete="${this.autocomplete}"`,
-      `value="${this.currentValue}"`,
-      this.name ? `name="${this.name}"` : '',
-      this.disabled ? 'disabled aria-disabled="true"' : '',
-      this.invalid ? 'aria-invalid="true"' : '',
-      this.required ? 'required aria-required="true"' : '',
-      this.ariaLabel ? `aria-label="${this.ariaLabel}"` : '',
-      this.ariaDescribedBy ? `aria-describedby="${this.ariaDescribedBy}"` : '',
-    ]
-      .filter(Boolean)
-      .join(' ')
-
-    return `<input ${attrs} />`
-  }
-
   private render(): void {
     if (!this.shadowRoot) return
 
-    this.shadowRoot.innerHTML = `
-    <style>
-      @keyframes blink {
-        50% { opacity: 0; }
-      }
-
-      :host {
-        display: inline-block;
-      }
-
-      :host([disabled]) {
-        pointer-events: none;
-      }
-
-      [part="wrapper"] {
-        position: relative;
-        display: flex;
-        align-items: flex-start;
-      }
-
-      input {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        width: 100%;
-        height: 100%;
-        cursor: text;
-      }
-    </style>
-
-    <div part="wrapper" role="group" ${this.ariaLabel ? `aria-label="${this.ariaLabel}"` : ''}>
-      ${this.buildSlots()}
-
-      ${this.buildInput()}
-    </div>
-    `
+    renderHTML({
+      shadowRoot: this.shadowRoot,
+      getLength: () => this.length,
+      getSeparatorPositions: () => this.separatorPositions,
+      getCurrentValue: () => this.currentValue,
+      getName: () => this.name,
+      getAutocomplete: () => this.autocomplete,
+      getDisabled: () => this.disabled,
+      getInvalid: () => this.invalid,
+      getRequired: () => this.required,
+      getAriaLabel: () => this.ariaLabel,
+      getAriaDescribedBy: () => this.ariaDescribedBy,
+    })
   }
 }
 
