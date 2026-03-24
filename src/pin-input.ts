@@ -15,6 +15,7 @@ import {
   setupBlurListener,
   setupFocusListener,
 } from './listeners/focus.listener'
+import { setupInputListener } from './listeners/input.listener'
 import { setupPasteListener } from './listeners/paste.listener'
 import type { PinInputAttributes } from './types'
 
@@ -243,94 +244,27 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       signal
     )
 
-    this.setupInputListener(signal)
-    this.setupKeydownListener(signal)
-  }
-
-  private setupInputListener(signal: AbortSignal): void {
-    this.$input?.addEventListener(
-      'input',
-      (event) => {
-        const $target = event.target as HTMLInputElement
-
-        // if cursor was inside the filled slots, we're replacing a character
-        // not appending — unless the last key was Backspace
-        const isCursorInsideFilled =
-          this.cursorPositionBeforeInput < this.currentValue.length
-
-        const isReplacing =
-          isCursorInsideFilled && this.lastKey !== Key.Backspace
-
-        if (this.isSelecting) {
-          this.isSelecting = false
-
-          const newChar = this.lastKey
-
-          if (!newChar || !this.patternRegex.test(newChar)) {
-            $target.value = this.currentValue
-
-            return
-          }
-
-          $target.value = newChar
-          $target.setSelectionRange(1, 1)
-
-          this.currentValue = newChar
-          this.update()
-
-          return
-        }
-
-        if (isReplacing) {
-          // extract the newly typed character at the cursor position
-          const newChar = $target.value[this.cursorPositionBeforeInput]
-
-          // if invalid or no char, restore previous value and bail
-          if (!newChar || !this.patternRegex.test(newChar)) {
-            $target.value = this.currentValue
-
-            return
-          }
-
-          // replace the character at cursor position, keep the rest
-          const newValue =
-            this.currentValue.slice(0, this.cursorPositionBeforeInput) +
-            newChar +
-            this.currentValue.slice(this.cursorPositionBeforeInput + 1)
-
-          $target.value = newValue
-          $target.setSelectionRange(
-            this.cursorPositionBeforeInput + 1,
-            this.cursorPositionBeforeInput + 1
-          )
-
-          this.currentValue = newValue
-          this.update()
-
-          return
-        }
-
-        // normal append — filter out characters that don't match the pattern
-        const validatedValue = $target.value
-          .split('')
-          .filter((char) => this.patternRegex.test(char))
-          .join('')
-          .slice(0, this.length)
-
-        if (validatedValue !== $target.value) {
-          $target.value = validatedValue
-        }
-
-        // force cursor to the end
-        const endPos = Math.min($target.value.length, this.length - 1)
-
-        $target.setSelectionRange(endPos, endPos)
-
-        this.currentValue = $target.value
-        this.update()
+    setupInputListener(
+      this.$input!,
+      {
+        getCurrentValue: () => this.currentValue,
+        getLength: () => this.length,
+        getCursorPositionBeforeInput: () => this.cursorPositionBeforeInput,
+        getLastKey: () => this.lastKey,
+        getIsSelecting: () => this.isSelecting,
+        getPatternRegex: () => this.patternRegex,
+        setCurrentValue: (value: string) => {
+          this.currentValue = value
+        },
+        setIsSelecting: (value: boolean) => {
+          this.isSelecting = value
+        },
+        update: () => this.update(),
       },
-      { signal }
+      signal
     )
+
+    this.setupKeydownListener(signal)
   }
 
   private setupKeydownListener(signal: AbortSignal): void {
