@@ -15,6 +15,7 @@ import { setupInputListener } from './listeners/input.listener'
 import { setupKeydownListener } from './listeners/keydown.listener'
 import { setupPasteListener } from './listeners/paste.listener'
 import type { PinInputAttributes } from './types'
+import { emitEvents } from './update/events'
 
 class PinInput extends HTMLElement implements PinInputAttributes {
   // ─── State ───────────────────────────────
@@ -347,28 +348,15 @@ class PinInput extends HTMLElement implements PinInputAttributes {
   }
 
   private emitEvents(): void {
-    const isComplete = this.currentValue.length === this.length
-
-    // emit change event if value has changed since last emission
-    if (this.currentValue !== this.lastEmittedValue) {
-      this.lastEmittedValue = this.currentValue
-
-      this.dispatchEvent(
-        new CustomEvent('pin-change', {
-          detail: { value: this.currentValue },
-          bubbles: true,
-        })
-      )
-
-      if (isComplete) {
-        this.dispatchEvent(
-          new CustomEvent('pin-complete', {
-            detail: { value: this.currentValue },
-            bubbles: true,
-          })
-        )
-      }
-    }
+    emitEvents({
+      getCurrentValue: () => this.currentValue,
+      getLastEmittedValue: () => this.lastEmittedValue,
+      getLength: () => this.length,
+      setLastEmittedValue: (value) => {
+        this.lastEmittedValue = value
+      },
+      dispatchEvent: (event) => this.dispatchEvent(event),
+    })
   }
 
   private syncAriaAttributes(): void {
