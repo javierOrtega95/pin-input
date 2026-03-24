@@ -703,6 +703,17 @@ class PinInput extends HTMLElement implements PinInputProps {
 
     // sync value with the form
     this.internals.setFormValue(this.currentValue)
+
+    // sync form validity
+    if (this.required && this.currentValue.length < this.length) {
+      this.internals.setValidity(
+        { valueMissing: true },
+        'Value is required',
+        this.$input ?? undefined
+      )
+    } else {
+      this.internals.setValidity({})
+    }
   }
 
   private render(): void {
