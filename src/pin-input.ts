@@ -15,6 +15,7 @@ import {
   setupBlurListener,
   setupFocusListener,
 } from './listeners/focus.listener'
+import { setupPasteListener } from './listeners/paste.listener'
 import type { PinInputAttributes } from './types'
 
 class PinInput extends HTMLElement implements PinInputAttributes {
@@ -227,10 +228,23 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       signal
     )
 
+    setupPasteListener(
+      this.$input!,
+      {
+        getCurrentValue: () => this.currentValue,
+        getLength: () => this.length,
+        getInput: () => this.$input,
+        getPatternRegex: () => this.patternRegex,
+        setCurrentValue: (value) => {
+          this.currentValue = value
+        },
+        update: () => this.update(),
+      },
+      signal
+    )
+
     this.setupInputListener(signal)
     this.setupKeydownListener(signal)
-
-    this.setupPasteListener(signal)
   }
 
   private setupInputListener(signal: AbortSignal): void {
@@ -556,41 +570,6 @@ class PinInput extends HTMLElement implements PinInputAttributes {
           // defer update to next frame so cursor has already moved
           requestAnimationFrame(() => this.update())
         }
-      },
-      { signal }
-    )
-  }
-
-  private setupPasteListener(signal: AbortSignal): void {
-    this.$input?.addEventListener(
-      'paste',
-      (event) => {
-        event.preventDefault()
-
-        const cursorPosition =
-          this.$input?.selectionStart ?? this.currentValue.length
-
-        const pastedText = event.clipboardData?.getData('text') ?? ''
-
-        const validPasted = pastedText
-          .split('')
-          .filter((char) => this.patternRegex.test(char))
-          .join('')
-
-        if (!validPasted) return
-
-        const currentPin = this.currentValue.slice(0, cursorPosition)
-
-        const newValue = (currentPin + validPasted).slice(0, this.length)
-
-        this.currentValue = newValue
-
-        if (this.$input) {
-          this.$input.value = newValue
-          this.$input.setSelectionRange(newValue.length, newValue.length)
-        }
-
-        this.update()
       },
       { signal }
     )
