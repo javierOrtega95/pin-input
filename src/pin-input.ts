@@ -10,14 +10,18 @@ import {
 import type { PinInputAttributes } from './types'
 
 class PinInput extends HTMLElement implements PinInputAttributes {
+  // ─── State ───────────────────────────────
   private currentValue: string = ''
   private lastEmittedValue: string = ''
+  private lastKey: string = ''
   private isFocused: boolean = false
   private isSelecting: boolean = false
   private cursorPositionBeforeInput: number = 0
-  private lastKey: string = ''
   private listenerController: AbortController = new AbortController()
+  private internals: ElementInternals
+  private patternRegex: RegExp = new RegExp(`^${DEFAULT_PATTERN}$`)
 
+  // ─── Static ───────────────────────────────
   static formAssociated = true
 
   static observedAttributes: (keyof PinInputAttributes)[] = [
@@ -35,17 +39,13 @@ class PinInput extends HTMLElement implements PinInputAttributes {
     'aria-describedby',
   ]
 
-  private internals: ElementInternals
-
-  private patternRegex: RegExp = new RegExp(`^${DEFAULT_PATTERN}$`)
-
   constructor() {
     super()
     this.internals = this.attachInternals()
     this.attachShadow({ mode: 'open' })
   }
 
-  // Getters
+  // ─── Getters ───────────────────────────────
   get length(): number {
     return Number(this.getAttribute('length') ?? DEFAULT_LENGTH)
   }
@@ -90,6 +90,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
     return this.getAttribute('aria-describedby')
   }
 
+  // ─── Private Getters ───────────────────────────────
   private get $input(): HTMLInputElement | null {
     return this.shadowRoot?.querySelector('input') ?? null
   }
@@ -113,12 +114,12 @@ class PinInput extends HTMLElement implements PinInputAttributes {
     return this.separators.split(',').map(Number)
   }
 
-  // Lifecycle
+  // ─── Lifecycle ───────────────────────────────
   connectedCallback(): void {
     this.currentValue = this.value
 
     this.render()
-    this.updateSlots()
+    this.update()
     this.setupListeners()
 
     if (this.hasAttribute('autofocus')) {
@@ -145,7 +146,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       this.currentValue = ''
 
       this.render()
-      this.updateSlots()
+      this.update()
       this.setupListeners()
 
       return
@@ -156,15 +157,16 @@ class PinInput extends HTMLElement implements PinInputAttributes {
 
       if (this.$input) this.$input.value = this.currentValue
 
-      this.updateSlots()
+      this.update()
 
       return
     }
 
     // for all other attributes, just update slots — no re-render needed
-    this.updateSlots()
+    this.update()
   }
 
+  // ─── Listeners ───────────────────────────────
   private setupListeners(): void {
     // remove previous listeners before adding new ones
     this.listenerController.abort()
@@ -210,7 +212,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
           $target.setSelectionRange(1, 1)
 
           this.currentValue = newChar
-          this.updateSlots()
+          this.update()
 
           return
         }
@@ -239,7 +241,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
           )
 
           this.currentValue = newValue
-          this.updateSlots()
+          this.update()
 
           return
         }
@@ -261,7 +263,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
         $target.setSelectionRange(endPos, endPos)
 
         this.currentValue = $target.value
-        this.updateSlots()
+        this.update()
       },
       { signal }
     )
@@ -283,7 +285,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
           this.isSelecting = true
           this.$input?.select()
 
-          this.updateSlots()
+          this.update()
 
           return
         }
@@ -320,7 +322,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
             this.$input.setSelectionRange(nextPos, nextPos)
           }
 
-          this.updateSlots()
+          this.update()
 
           return
         }
@@ -334,7 +336,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
 
           this.$input?.setSelectionRange(0, 0)
 
-          requestAnimationFrame(() => this.updateSlots())
+          requestAnimationFrame(() => this.update())
           return
         }
 
@@ -352,7 +354,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
 
           this.$input?.setSelectionRange(endPosition, endPosition)
 
-          requestAnimationFrame(() => this.updateSlots())
+          requestAnimationFrame(() => this.update())
 
           return
         }
@@ -398,7 +400,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
             this.$input.setSelectionRange(newPos, newPos)
           }
 
-          this.updateSlots()
+          this.update()
 
           return
         }
@@ -428,7 +430,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
             this.$input.setSelectionRange(cursorPosition, cursorPosition)
           }
 
-          this.updateSlots()
+          this.update()
 
           return
         }
@@ -453,7 +455,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
             }
 
             // defer update to next frame so cursor has already moved
-            requestAnimationFrame(() => this.updateSlots())
+            requestAnimationFrame(() => this.update())
 
             return
           }
@@ -482,7 +484,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
             }
 
             // defer update to next frame so cursor has already moved
-            requestAnimationFrame(() => this.updateSlots())
+            requestAnimationFrame(() => this.update())
 
             return
           }
@@ -502,7 +504,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
           }
 
           // defer update to next frame so cursor has already moved
-          requestAnimationFrame(() => this.updateSlots())
+          requestAnimationFrame(() => this.update())
         }
       },
       { signal }
@@ -523,7 +525,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
         this.isSelecting = true
         this.$input?.select()
 
-        this.updateSlots()
+        this.update()
       },
       { signal }
     )
@@ -539,7 +541,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
         const cursorPos = Math.min(this.currentValue.length, this.length - 1)
 
         this.$input?.setSelectionRange(cursorPos, cursorPos)
-        this.updateSlots()
+        this.update()
       },
       { signal }
     )
@@ -552,7 +554,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
         this.isFocused = false
         this.isSelecting = false
 
-        this.updateSlots()
+        this.update()
       },
       { signal }
     )
@@ -587,7 +589,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
           this.$input.setSelectionRange(newValue.length, newValue.length)
         }
 
-        this.updateSlots()
+        this.update()
       },
       { signal }
     )
@@ -602,41 +604,18 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       this.$input.setSelectionRange(0, 0)
     }
 
-    this.updateSlots()
+    this.update()
   }
 
-  private buildSlots(): string {
-    return Array.from({ length: this.length })
-      .map((_, index) => {
-        const slot = `<div part="slot"></div>`
-        const separator = this.separatorPositions.includes(index + 1)
-          ? `<span part="separator"></span>`
-          : ''
-
-        return slot + separator
-      })
-      .join('')
+  // ─── Update ───────────────────────────────
+  private update(): void {
+    this.updateSlotsParts()
+    this.emitEvents()
+    this.syncAriaAttributes()
+    this.syncFormState()
   }
 
-  private buildInput(): string {
-    const attrs = [
-      `type="text"`,
-      `autocomplete="${this.autocomplete}"`,
-      `value="${this.currentValue}"`,
-      this.name ? `name="${this.name}"` : '',
-      this.disabled ? 'disabled aria-disabled="true"' : '',
-      this.invalid ? 'aria-invalid="true"' : '',
-      this.required ? 'required aria-required="true"' : '',
-      this.ariaLabel ? `aria-label="${this.ariaLabel}"` : '',
-      this.ariaDescribedBy ? `aria-describedby="${this.ariaDescribedBy}"` : '',
-    ]
-      .filter(Boolean)
-      .join(' ')
-
-    return `<input ${attrs} />`
-  }
-
-  private updateSlots(): void {
+  private updateSlotsParts(): void {
     const cursorPosition = Math.min(
       this.$input?.selectionStart ?? this.currentValue.length,
       this.length - 1
@@ -672,10 +651,6 @@ class PinInput extends HTMLElement implements PinInputAttributes {
           .join(' ')
       )
     })
-
-    this.emitEvents()
-    this.syncAriaAttributes()
-    this.syncFormState()
   }
 
   private emitEvents(): void {
@@ -741,6 +716,38 @@ class PinInput extends HTMLElement implements PinInputAttributes {
     } else {
       this.internals.setValidity({})
     }
+  }
+
+  // ─── Render ───────────────────────────────
+  private buildSlots(): string {
+    return Array.from({ length: this.length })
+      .map((_, index) => {
+        const slot = `<div part="slot"></div>`
+        const separator = this.separatorPositions.includes(index + 1)
+          ? `<span part="separator"></span>`
+          : ''
+
+        return slot + separator
+      })
+      .join('')
+  }
+
+  private buildInput(): string {
+    const attrs = [
+      `type="text"`,
+      `autocomplete="${this.autocomplete}"`,
+      `value="${this.currentValue}"`,
+      this.name ? `name="${this.name}"` : '',
+      this.disabled ? 'disabled aria-disabled="true"' : '',
+      this.invalid ? 'aria-invalid="true"' : '',
+      this.required ? 'required aria-required="true"' : '',
+      this.ariaLabel ? `aria-label="${this.ariaLabel}"` : '',
+      this.ariaDescribedBy ? `aria-describedby="${this.ariaDescribedBy}"` : '',
+    ]
+      .filter(Boolean)
+      .join(' ')
+
+    return `<input ${attrs} />`
   }
 
   private render(): void {
