@@ -172,6 +172,16 @@ class PinInput extends HTMLElement implements PinInputAttributes {
 
     const { signal } = this.listenerController
 
+    this.setupInputListener(signal)
+    this.setupKeydownListener(signal)
+    this.setupClickListener(signal)
+    this.setupDoubleClickListener(signal)
+    this.setupFocusListener(signal)
+    this.setupBlurListener(signal)
+    this.setupPasteListener(signal)
+  }
+
+  private setupInputListener(signal: AbortSignal): void {
     this.$input?.addEventListener(
       'input',
       (event) => {
@@ -179,7 +189,6 @@ class PinInput extends HTMLElement implements PinInputAttributes {
 
         // if cursor was inside the filled slots, we're replacing a character
         // not appending — unless the last key was Backspace
-
         const isCursorInsideFilled =
           this.cursorPositionBeforeInput < this.currentValue.length
 
@@ -248,15 +257,17 @@ class PinInput extends HTMLElement implements PinInputAttributes {
 
         // force cursor to the end
         const endPos = Math.min($target.value.length, this.length - 1)
+
         $target.setSelectionRange(endPos, endPos)
 
         this.currentValue = $target.value
-
         this.updateSlots()
       },
       { signal }
     )
+  }
 
+  private setupKeydownListener(signal: AbortSignal): void {
     this.$input?.addEventListener(
       'keydown',
       (event) => {
@@ -271,6 +282,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
 
           this.isSelecting = true
           this.$input?.select()
+
           this.updateSlots()
 
           return
@@ -279,7 +291,6 @@ class PinInput extends HTMLElement implements PinInputAttributes {
         // when input is complete and cursor is on a filled slot,
         // handle replacement directly to avoid maxlength issues
         const isComplete = this.currentValue.length === this.length
-
         const isAtFilledSlot =
           this.cursorPositionBeforeInput < this.currentValue.length
 
@@ -294,6 +305,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
           if (!this.patternRegex.test(event.key)) return
 
           const currentPosition = this.cursorPositionBeforeInput
+
           const newValue =
             this.currentValue.slice(0, currentPosition) +
             event.key +
@@ -315,18 +327,20 @@ class PinInput extends HTMLElement implements PinInputAttributes {
 
         if (JUMP_TO_START_KEYS.includes(event.key as Key)) {
           event.preventDefault()
+
           this.isSelecting = false
 
           if (this.$input?.selectionStart === 0) return
 
           this.$input?.setSelectionRange(0, 0)
-          requestAnimationFrame(() => this.updateSlots())
 
+          requestAnimationFrame(() => this.updateSlots())
           return
         }
 
         if (JUMP_TO_END_KEYS.includes(event.key as Key)) {
           event.preventDefault()
+
           this.isSelecting = false
 
           const endPosition = Math.min(
@@ -337,6 +351,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
           if (this.$input?.selectionStart === endPosition) return
 
           this.$input?.setSelectionRange(endPosition, endPosition)
+
           requestAnimationFrame(() => this.updateSlots())
 
           return
@@ -357,7 +372,6 @@ class PinInput extends HTMLElement implements PinInputAttributes {
 
           // if current slot is empty, delete the previous character and move back
           // otherwise delete the character at the current position
-
           const isCursorAtEnd = cursorPosition >= this.currentValue.length
 
           const currentSlotIsEmpty =
@@ -403,11 +417,9 @@ class PinInput extends HTMLElement implements PinInputAttributes {
           // nothing to delete if cursor is past the last filled slot
           if (cursorPosition >= this.currentValue.length) return
 
-          // delete the character at the current position, cursor stays
-          const startSlice = this.currentValue.slice(0, cursorPosition)
-          const endSlice = this.currentValue.slice(cursorPosition + 1)
-
-          const newValue = startSlice + endSlice
+          const newValue =
+            this.currentValue.slice(0, cursorPosition) +
+            this.currentValue.slice(cursorPosition + 1)
 
           this.currentValue = newValue
 
@@ -440,7 +452,9 @@ class PinInput extends HTMLElement implements PinInputAttributes {
               this.$input?.setSelectionRange(0, 0)
             }
 
+            // defer update to next frame so cursor has already moved
             requestAnimationFrame(() => this.updateSlots())
+
             return
           }
 
@@ -463,10 +477,13 @@ class PinInput extends HTMLElement implements PinInputAttributes {
                 this.currentValue.length,
                 this.length - 1
               )
+
               this.$input?.setSelectionRange(endPosition, endPosition)
             }
 
+            // defer update to next frame so cursor has already moved
             requestAnimationFrame(() => this.updateSlots())
+
             return
           }
 
@@ -490,9 +507,13 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       },
       { signal }
     )
+  }
 
+  private setupClickListener(signal: AbortSignal): void {
     this.addEventListener('click', () => this.$input?.focus(), { signal })
+  }
 
+  private setupDoubleClickListener(signal: AbortSignal): void {
     // double click — select all filled slots
     this.addEventListener(
       'dblclick',
@@ -501,11 +522,14 @@ class PinInput extends HTMLElement implements PinInputAttributes {
 
         this.isSelecting = true
         this.$input?.select()
+
         this.updateSlots()
       },
       { signal }
     )
+  }
 
+  private setupFocusListener(signal: AbortSignal): void {
     this.$input?.addEventListener(
       'focus',
       () => {
@@ -519,7 +543,9 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       },
       { signal }
     )
+  }
 
+  private setupBlurListener(signal: AbortSignal): void {
     this.$input?.addEventListener(
       'blur',
       () => {
@@ -530,7 +556,9 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       },
       { signal }
     )
+  }
 
+  private setupPasteListener(signal: AbortSignal): void {
     this.$input?.addEventListener(
       'paste',
       (event) => {
