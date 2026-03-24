@@ -7,6 +7,10 @@ import {
   JUMP_TO_START_KEYS,
   Key,
 } from './constants'
+import {
+  setupClickListener,
+  setupDoubleClickListener,
+} from './listeners/click.listener'
 import type { PinInputAttributes } from './types'
 
 class PinInput extends HTMLElement implements PinInputAttributes {
@@ -174,10 +178,22 @@ class PinInput extends HTMLElement implements PinInputAttributes {
 
     const { signal } = this.listenerController
 
+    setupClickListener(this, { getInput: () => this.$input }, signal)
+    setupDoubleClickListener(
+      this,
+      {
+        getCurrentValue: () => this.currentValue,
+        setIsSelecting: (value: boolean) => {
+          this.isSelecting = value
+        },
+        getInput: () => this.$input,
+        update: () => this.update(),
+      },
+      signal
+    )
+
     this.setupInputListener(signal)
     this.setupKeydownListener(signal)
-    this.setupClickListener(signal)
-    this.setupDoubleClickListener(signal)
     this.setupFocusListener(signal)
     this.setupBlurListener(signal)
     this.setupPasteListener(signal)
@@ -506,26 +522,6 @@ class PinInput extends HTMLElement implements PinInputAttributes {
           // defer update to next frame so cursor has already moved
           requestAnimationFrame(() => this.update())
         }
-      },
-      { signal }
-    )
-  }
-
-  private setupClickListener(signal: AbortSignal): void {
-    this.addEventListener('click', () => this.$input?.focus(), { signal })
-  }
-
-  private setupDoubleClickListener(signal: AbortSignal): void {
-    // double click — select all filled slots
-    this.addEventListener(
-      'dblclick',
-      () => {
-        if (this.currentValue.length === 0) return
-
-        this.isSelecting = true
-        this.$input?.select()
-
-        this.update()
       },
       { signal }
     )
