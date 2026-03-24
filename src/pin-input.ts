@@ -645,6 +645,12 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       )
     })
 
+    this.emitEvents()
+    this.syncAriaAttributes()
+    this.syncFormState()
+  }
+
+  private emitEvents(): void {
     const isComplete = this.currentValue.length === this.length
 
     // emit change event if value has changed since last emission
@@ -667,8 +673,9 @@ class PinInput extends HTMLElement implements PinInputAttributes {
         )
       }
     }
+  }
 
-    // sync aria attributes
+  private syncAriaAttributes(): void {
     this.$input?.setAttribute('aria-invalid', String(this.invalid))
     this.$input?.setAttribute('aria-required', String(this.required))
     this.$input?.setAttribute('aria-disabled', String(this.disabled))
@@ -690,7 +697,9 @@ class PinInput extends HTMLElement implements PinInputAttributes {
     } else {
       this.$wrapper?.removeAttribute('aria-label')
     }
+  }
 
+  private syncFormState(): void {
     // sync value with the form
     this.internals.setFormValue(this.currentValue)
 
