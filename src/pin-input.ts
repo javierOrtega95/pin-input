@@ -1,27 +1,15 @@
-import type { PinInputProps } from './types'
+import {
+  DEFAULT_AUTOCOMPLETE,
+  DEFAULT_LENGTH,
+  DEFAULT_PATTERN,
+  HORIZONTAL_ARROW_KEYS,
+  JUMP_TO_END_KEYS,
+  JUMP_TO_START_KEYS,
+  Key,
+} from './constants'
+import type { PinInputAttributes } from './types'
 
-const DEFAULT_LENGTH = 6
-const DEFAULT_PATTERN = '[0-9]'
-const DEFAULT_AUTOCOMPLETE = 'one-time-code'
-
-enum Key {
-  Up = 'ArrowUp',
-  Down = 'ArrowDown',
-  Left = 'ArrowLeft',
-  Right = 'ArrowRight',
-  Backspace = 'Backspace',
-  Delete = 'Delete',
-  Home = 'Home',
-  End = 'End',
-  A = 'a',
-}
-
-const HORIZONTAL_ARROW_KEYS = [Key.Left, Key.Right]
-
-const JUMP_TO_START_KEYS = [Key.Up, Key.Home]
-const JUMP_TO_END_KEYS = [Key.Down, Key.End]
-
-class PinInput extends HTMLElement implements PinInputProps {
+class PinInput extends HTMLElement implements PinInputAttributes {
   private currentValue: string = ''
   private lastEmittedValue: string = ''
   private isFocused: boolean = false
@@ -32,7 +20,7 @@ class PinInput extends HTMLElement implements PinInputProps {
 
   static formAssociated = true
 
-  static observedAttributes: (keyof PinInputProps)[] = [
+  static observedAttributes: (keyof PinInputAttributes)[] = [
     'length',
     'value',
     'pattern',
@@ -143,7 +131,7 @@ class PinInput extends HTMLElement implements PinInputProps {
   }
 
   attributeChangedCallback(
-    name: keyof PinInputProps,
+    name: keyof PinInputAttributes,
     oldValue: string | null,
     newValue: string | null
   ): void {
@@ -510,6 +498,7 @@ class PinInput extends HTMLElement implements PinInputProps {
       'dblclick',
       () => {
         if (this.currentValue.length === 0) return
+
         this.isSelecting = true
         this.$input?.select()
         this.updateSlots()
@@ -536,6 +525,7 @@ class PinInput extends HTMLElement implements PinInputProps {
       () => {
         this.isFocused = false
         this.isSelecting = false
+
         this.updateSlots()
       },
       { signal }

@@ -1,4 +1,4 @@
-export interface PinInputProps {
+export interface PinInputAttributes {
   length?: number
   value?: string
   pattern?: string
