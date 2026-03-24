@@ -2,10 +2,6 @@ import {
   DEFAULT_AUTOCOMPLETE,
   DEFAULT_LENGTH,
   DEFAULT_PATTERN,
-  HORIZONTAL_ARROW_KEYS,
-  JUMP_TO_END_KEYS,
-  JUMP_TO_START_KEYS,
-  Key,
 } from './constants'
 import {
   setupClickListener,
@@ -16,6 +12,7 @@ import {
   setupFocusListener,
 } from './listeners/focus.listener'
 import { setupInputListener } from './listeners/input.listener'
+import { setupKeydownListener } from './listeners/keydown.listener'
 import { setupPasteListener } from './listeners/paste.listener'
 import type { PinInputAttributes } from './types'
 
@@ -264,248 +261,30 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       signal
     )
 
-    this.setupKeydownListener(signal)
-  }
-
-  private setupKeydownListener(signal: AbortSignal): void {
-    this.$input?.addEventListener(
-      'keydown',
-      (event) => {
-        // track last key and cursor position before any input event fires
-        this.lastKey = event.key
-        this.cursorPositionBeforeInput = this.$input?.selectionStart ?? 0
-
-        if (event.key === Key.A && (event.ctrlKey || event.metaKey)) {
-          event.preventDefault()
-
-          if (this.currentValue.length === 0) return
-
-          this.isSelecting = true
-          this.$input?.select()
-
-          this.update()
-
-          return
-        }
-
-        // when input is complete and cursor is on a filled slot,
-        // handle replacement directly to avoid maxlength issues
-        const isComplete = this.currentValue.length === this.length
-        const isAtFilledSlot =
-          this.cursorPositionBeforeInput < this.currentValue.length
-
-        if (
-          isComplete &&
-          isAtFilledSlot &&
-          event.key.length === 1 &&
-          !this.isSelecting
-        ) {
-          event.preventDefault()
-
-          if (!this.patternRegex.test(event.key)) return
-
-          const currentPosition = this.cursorPositionBeforeInput
-
-          const newValue =
-            this.currentValue.slice(0, currentPosition) +
-            event.key +
-            this.currentValue.slice(currentPosition + 1)
-
-          const nextPos = Math.min(currentPosition + 1, this.length - 1)
-
-          this.currentValue = newValue
-
-          if (this.$input) {
-            this.$input.value = newValue
-            this.$input.setSelectionRange(nextPos, nextPos)
-          }
-
-          this.update()
-
-          return
-        }
-
-        if (JUMP_TO_START_KEYS.includes(event.key as Key)) {
-          event.preventDefault()
-
-          this.isSelecting = false
-
-          if (this.$input?.selectionStart === 0) return
-
-          this.$input?.setSelectionRange(0, 0)
-
-          requestAnimationFrame(() => this.update())
-          return
-        }
-
-        if (JUMP_TO_END_KEYS.includes(event.key as Key)) {
-          event.preventDefault()
-
-          this.isSelecting = false
-
-          const endPosition = Math.min(
-            this.currentValue.length,
-            this.length - 1
-          )
-
-          if (this.$input?.selectionStart === endPosition) return
-
-          this.$input?.setSelectionRange(endPosition, endPosition)
-
-          requestAnimationFrame(() => this.update())
-
-          return
-        }
-
-        if (event.key === Key.Backspace) {
-          event.preventDefault()
-
-          if (this.isSelecting) {
-            this.clearSelection()
-
-            return
-          }
-
-          const cursorPosition = this.$input?.selectionStart ?? 0
-
-          if (this.currentValue.length === 0) return
-
-          // if current slot is empty, delete the previous character and move back
-          // otherwise delete the character at the current position
-          const isCursorAtEnd = cursorPosition >= this.currentValue.length
-
-          const currentSlotIsEmpty =
-            isCursorAtEnd || !this.currentValue[cursorPosition]
-
-          const startSlice = currentSlotIsEmpty
-            ? this.currentValue.slice(0, cursorPosition - 1)
-            : this.currentValue.slice(0, cursorPosition)
-
-          const endSlice = currentSlotIsEmpty
-            ? this.currentValue.slice(cursorPosition)
-            : this.currentValue.slice(cursorPosition + 1)
-
-          const newValue = startSlice + endSlice
-
-          const newPos = currentSlotIsEmpty
-            ? cursorPosition - 1
-            : cursorPosition
-
-          this.currentValue = newValue
-
-          if (this.$input) {
-            this.$input.value = newValue
-            this.$input.setSelectionRange(newPos, newPos)
-          }
-
-          this.update()
-
-          return
-        }
-
-        if (event.key === Key.Delete) {
-          event.preventDefault()
-
-          if (this.isSelecting) {
-            this.clearSelection()
-
-            return
-          }
-
-          const cursorPosition = this.$input?.selectionStart ?? 0
-
-          // nothing to delete if cursor is past the last filled slot
-          if (cursorPosition >= this.currentValue.length) return
-
-          const newValue =
-            this.currentValue.slice(0, cursorPosition) +
-            this.currentValue.slice(cursorPosition + 1)
-
-          this.currentValue = newValue
-
-          if (this.$input) {
-            this.$input.value = newValue
-            this.$input.setSelectionRange(cursorPosition, cursorPosition)
-          }
-
-          this.update()
-
-          return
-        }
-
-        const isHorizontalArrow = HORIZONTAL_ARROW_KEYS.includes(
-          event.key as Key
-        )
-
-        if (isHorizontalArrow) {
-          if (this.isSelecting) {
-            this.isSelecting = false
-
-            if (event.key === Key.Right) {
-              const endPosition = Math.min(
-                this.currentValue.length,
-                this.length - 1
-              )
-
-              this.$input?.setSelectionRange(endPosition, endPosition)
-            } else {
-              this.$input?.setSelectionRange(0, 0)
-            }
-
-            // defer update to next frame so cursor has already moved
-            requestAnimationFrame(() => this.update())
-
-            return
-          }
-
-          const rawCursor = this.$input?.selectionStart ?? 0
-          const cursorPosition = Math.min(rawCursor, this.length - 1)
-
-          // sync if cursor was out of bounds
-          if (rawCursor > this.length - 1) {
-            this.$input?.setSelectionRange(cursorPosition, cursorPosition)
-          }
-
-          // ctrl/meta + arrow — jump to start or end
-          if (event.ctrlKey || event.metaKey) {
-            event.preventDefault()
-
-            if (event.key === Key.Left) {
-              this.$input?.setSelectionRange(0, 0)
-            } else {
-              const endPosition = Math.min(
-                this.currentValue.length,
-                this.length - 1
-              )
-
-              this.$input?.setSelectionRange(endPosition, endPosition)
-            }
-
-            // defer update to next frame so cursor has already moved
-            requestAnimationFrame(() => this.update())
-
-            return
-          }
-
-          const isLeftMove = event.key === Key.Left
-          const isRightMove = event.key === Key.Right
-
-          const isAtStart = cursorPosition <= 0
-          const isAtEnd =
-            cursorPosition >=
-            Math.min(this.currentValue.length, this.length - 1)
-
-          if ((isLeftMove && isAtStart) || (isRightMove && isAtEnd)) {
-            event.preventDefault()
-
-            return
-          }
-
-          // defer update to next frame so cursor has already moved
-          requestAnimationFrame(() => this.update())
-        }
+    setupKeydownListener(
+      this.$input!,
+      {
+        getCurrentValue: () => this.currentValue,
+        getLength: () => this.length,
+        getIsSelecting: () => this.isSelecting,
+        getInput: () => this.$input,
+        getPatternRegex: () => this.patternRegex,
+        setCurrentValue: (value) => {
+          this.currentValue = value
+        },
+        setLastKey: (value) => {
+          this.lastKey = value
+        },
+        setCursorPositionBeforeInput: (value) => {
+          this.cursorPositionBeforeInput = value
+        },
+        setIsSelecting: (value) => {
+          this.isSelecting = value
+        },
+        clearSelection: () => this.clearSelection(),
+        update: () => this.update(),
       },
-      { signal }
+      signal
     )
   }
 
