@@ -1,4 +1,4 @@
-export interface EmitEventsContext {
+interface EmitEventsContext {
   getCurrentValue: () => string
   getLastEmittedValue: () => string
   getLength: () => number

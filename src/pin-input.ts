@@ -15,6 +15,7 @@ import { setupInputListener } from './listeners/input.listener'
 import { setupKeydownListener } from './listeners/keydown.listener'
 import { setupPasteListener } from './listeners/paste.listener'
 import type { PinInputAttributes } from './types'
+import { syncAriaAttributes } from './update/aria'
 import { emitEvents } from './update/events'
 
 class PinInput extends HTMLElement implements PinInputAttributes {
@@ -360,27 +361,15 @@ class PinInput extends HTMLElement implements PinInputAttributes {
   }
 
   private syncAriaAttributes(): void {
-    this.$input?.setAttribute('aria-invalid', String(this.invalid))
-    this.$input?.setAttribute('aria-required', String(this.required))
-    this.$input?.setAttribute('aria-disabled', String(this.disabled))
-
-    if (this.ariaLabel) {
-      this.$input?.setAttribute('aria-label', this.ariaLabel)
-    } else {
-      this.$input?.removeAttribute('aria-label')
-    }
-
-    if (this.ariaDescribedBy) {
-      this.$input?.setAttribute('aria-describedby', this.ariaDescribedBy)
-    } else {
-      this.$input?.removeAttribute('aria-describedby')
-    }
-
-    if (this.ariaLabel) {
-      this.$wrapper?.setAttribute('aria-label', this.ariaLabel)
-    } else {
-      this.$wrapper?.removeAttribute('aria-label')
-    }
+    syncAriaAttributes({
+      getInvalid: () => this.invalid,
+      getRequired: () => this.required,
+      getDisabled: () => this.disabled,
+      getAriaLabel: () => this.ariaLabel,
+      getAriaDescribedBy: () => this.ariaDescribedBy,
+      getInput: () => this.$input,
+      getWrapper: () => this.$wrapper,
+    })
   }
 
   private syncFormState(): void {
