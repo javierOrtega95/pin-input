@@ -11,6 +11,10 @@ import {
   setupClickListener,
   setupDoubleClickListener,
 } from './listeners/click.listener'
+import {
+  setupBlurListener,
+  setupFocusListener,
+} from './listeners/focus.listener'
 import type { PinInputAttributes } from './types'
 
 class PinInput extends HTMLElement implements PinInputAttributes {
@@ -192,10 +196,40 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       signal
     )
 
+    setupFocusListener(
+      this.$input!,
+      {
+        getCurrentValue: () => this.currentValue,
+        getLength: () => this.length,
+        getInput: () => this.$input,
+        setIsFocused: (value: boolean) => {
+          this.isFocused = value
+        },
+        setIsSelecting: (value: boolean) => {
+          this.isSelecting = value
+        },
+        update: () => this.update(),
+      },
+      signal
+    )
+
+    setupBlurListener(
+      this.$input!,
+      {
+        setIsFocused: (value: boolean) => {
+          this.isFocused = value
+        },
+        setIsSelecting: (value: boolean) => {
+          this.isSelecting = value
+        },
+        update: () => this.update(),
+      },
+      signal
+    )
+
     this.setupInputListener(signal)
     this.setupKeydownListener(signal)
-    this.setupFocusListener(signal)
-    this.setupBlurListener(signal)
+
     this.setupPasteListener(signal)
   }
 
@@ -522,35 +556,6 @@ class PinInput extends HTMLElement implements PinInputAttributes {
           // defer update to next frame so cursor has already moved
           requestAnimationFrame(() => this.update())
         }
-      },
-      { signal }
-    )
-  }
-
-  private setupFocusListener(signal: AbortSignal): void {
-    this.$input?.addEventListener(
-      'focus',
-      () => {
-        this.isFocused = true
-
-        // place cursor at end of current value on focus
-        const cursorPos = Math.min(this.currentValue.length, this.length - 1)
-
-        this.$input?.setSelectionRange(cursorPos, cursorPos)
-        this.update()
-      },
-      { signal }
-    )
-  }
-
-  private setupBlurListener(signal: AbortSignal): void {
-    this.$input?.addEventListener(
-      'blur',
-      () => {
-        this.isFocused = false
-        this.isSelecting = false
-
-        this.update()
       },
       { signal }
     )

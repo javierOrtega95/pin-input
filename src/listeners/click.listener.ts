@@ -6,7 +6,7 @@ interface DoubleClickListenerContext {
   getCurrentValue: () => string
   setIsSelecting: (value: boolean) => void
   getInput: () => HTMLInputElement | null
-  update: () => void
+  update: VoidFunction
 }
 
 export function setupClickListener(
