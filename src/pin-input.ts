@@ -18,6 +18,7 @@ import type { PinInputAttributes } from './types'
 import { syncAriaAttributes } from './update/aria'
 import { emitEvents } from './update/events'
 import { syncFormState } from './update/form'
+import { updateSlotsParts } from './update/slots'
 
 class PinInput extends HTMLElement implements PinInputAttributes {
   // ─── State ───────────────────────────────
@@ -305,53 +306,26 @@ class PinInput extends HTMLElement implements PinInputAttributes {
 
   // ─── Update ───────────────────────────────
   private update(): void {
-    this.updateSlotsParts()
+    updateSlotsParts({
+      getCurrentValue: () => this.currentValue,
+      getLength: () => this.length,
+      getIsFocused: () => this.isFocused,
+      getIsSelecting: () => this.isSelecting,
+      getDisabled: () => this.disabled,
+      getInvalid: () => this.invalid,
+      getInput: () => this.$input,
+      getSlots: () => this.$slots,
+    })
+
     this.emitEvents()
     this.syncAriaAttributes()
+
     syncFormState({
       getCurrentValue: () => this.currentValue,
       getLength: () => this.length,
       getRequired: () => this.required,
       getInput: () => this.$input,
       internals: this.internals,
-    })
-  }
-
-  private updateSlotsParts(): void {
-    const cursorPosition = Math.min(
-      this.$input?.selectionStart ?? this.currentValue.length,
-      this.length - 1
-    )
-
-    this.$slots.forEach((slot, index) => {
-      const currentChar = this.currentValue[index] ?? ''
-
-      const isActive =
-        index === cursorPosition && this.isFocused && !this.disabled
-
-      const isFilled = index < this.currentValue.length
-
-      const isSelected = this.isSelecting && isFilled
-
-      const isError = this.invalid
-
-      const cursorHtml =
-        isActive && !currentChar ? `<span part="cursor"></span>` : ''
-
-      slot.innerHTML = currentChar + cursorHtml
-
-      slot.setAttribute(
-        'part',
-        [
-          'slot',
-          isActive && !this.isSelecting && 'active',
-          isFilled && 'filled',
-          isError && 'error',
-          isSelected && 'selected',
-        ]
-          .filter(Boolean)
-          .join(' ')
-      )
     })
   }
 
