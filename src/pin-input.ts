@@ -17,6 +17,7 @@ import { setupPasteListener } from './listeners/paste.listener'
 import type { PinInputAttributes } from './types'
 import { syncAriaAttributes } from './update/aria'
 import { emitEvents } from './update/events'
+import { syncFormState } from './update/form'
 
 class PinInput extends HTMLElement implements PinInputAttributes {
   // ─── State ───────────────────────────────
@@ -307,7 +308,13 @@ class PinInput extends HTMLElement implements PinInputAttributes {
     this.updateSlotsParts()
     this.emitEvents()
     this.syncAriaAttributes()
-    this.syncFormState()
+    syncFormState({
+      getCurrentValue: () => this.currentValue,
+      getLength: () => this.length,
+      getRequired: () => this.required,
+      getInput: () => this.$input,
+      internals: this.internals,
+    })
   }
 
   private updateSlotsParts(): void {
@@ -370,22 +377,6 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       getInput: () => this.$input,
       getWrapper: () => this.$wrapper,
     })
-  }
-
-  private syncFormState(): void {
-    // sync value with the form
-    this.internals.setFormValue(this.currentValue)
-
-    // sync form validity
-    if (this.required && this.currentValue.length < this.length) {
-      this.internals.setValidity(
-        { valueMissing: true },
-        'Value is required',
-        this.$input ?? undefined
-      )
-    } else {
-      this.internals.setValidity({})
-    }
   }
 
   // ─── Render ───────────────────────────────
