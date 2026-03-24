@@ -17,3 +17,15 @@ export function getInput(): HTMLInputElement | null {
 export function getWrapper(): Element | null {
   return getShadowRoot()?.querySelector('[part="wrapper"]') ?? null
 }
+
+export function simulatePaste(element: Element, text: string): void {
+  const clipboardData = new DataTransfer()
+  clipboardData.setData('text/plain', text)
+
+  element.dispatchEvent(
+    new ClipboardEvent('paste', {
+      bubbles: true,
+      clipboardData,
+    })
+  )
+}
