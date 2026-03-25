@@ -1,13 +1,26 @@
+/** Context required to sync ARIA attributes on the input and wrapper. */
 interface SyncAriaAttributesContext {
+  /** Returns whether the input is in an invalid state. */
   getInvalid: () => boolean
+  /** Returns whether the input is required. */
   getRequired: () => boolean
+  /** Returns whether the input is disabled. */
   getDisabled: () => boolean
+  /** Returns the aria-label attribute value. */
   getAriaLabel: () => string | null
+  /** Returns the aria-describedby attribute value. */
   getAriaDescribedBy: () => string | null
+  /** Returns the internal hidden input element. */
   getInput: () => HTMLInputElement | null
+  /** Returns the wrapper element. */
   getWrapper: () => HTMLElement | null
 }
 
+/**
+ * Syncs aria-invalid, aria-required, aria-disabled, aria-label
+ * and aria-describedby attributes on the internal input and wrapper.
+ * @param context - The sync aria attributes context.
+ */
 export function syncAriaAttributes({
   getInvalid,
   getRequired,

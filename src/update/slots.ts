@@ -1,14 +1,28 @@
-export interface UpdateSlotsPartsContext {
+/** Context required to update the slot parts. */
+interface UpdateSlotsPartsContext {
+  /** Returns the current PIN value. */
   getCurrentValue: () => string
+  /** Returns the maximum number of slots. */
   getLength: () => number
+  /** Returns whether the input is focused. */
   getIsFocused: () => boolean
+  /** Returns whether the input is in selecting state. */
   getIsSelecting: () => boolean
+  /** Returns whether the input is disabled. */
   getDisabled: () => boolean
+  /** Returns whether the input is in an invalid state. */
   getInvalid: () => boolean
+  /** Returns the internal hidden input element. */
   getInput: () => HTMLInputElement | null
+  /** Returns the list of slot elements. */
   getSlots: () => HTMLElement[]
 }
 
+/**
+ * Updates the part attributes and content of each slot element
+ * based on the current value, cursor position and component state.
+ * @param context - The update slots context.
+ */
 export function updateSlotsParts({
   getCurrentValue,
   getLength,
