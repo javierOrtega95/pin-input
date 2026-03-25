@@ -21,6 +21,36 @@ import { emitEvents } from './update/events'
 import { syncFormState } from './update/form'
 import { updateSlotsParts } from './update/slots'
 
+/**
+ * `<pin-input>` — A headless, accessible PIN/OTP input web component.
+ *
+ * @element pin-input
+ *
+ * @attr {number} length - Number of input slots. Defaults to 6.
+ * @attr {string} value - Initial value of the input.
+ * @attr {string} pattern - Regex pattern for valid characters. Defaults to `[0-9]`.
+ * @attr {string} name - Name of the field for form submission.
+ * @attr {string} autocomplete - Autocomplete attribute. Defaults to `one-time-code`.
+ * @attr {boolean} disabled - Disables the input.
+ * @attr {boolean} invalid - Marks the input as invalid.
+ * @attr {boolean} required - Marks the input as required.
+ * @attr {boolean} autofocus - Focuses the input on mount.
+ * @attr {string} separators - Comma-separated slot positions after which a separator is rendered (e.g. `"3"` or `"2,4"`).
+ * @attr {string} aria-label - Accessible label for the input group.
+ * @attr {string} aria-describedby - ID of the element that describes the input.
+ *
+ * @fires {CustomEvent<{ value: string }>} pin-change - Fired when the value changes.
+ * @fires {CustomEvent<{ value: string }>} pin-complete - Fired when all slots are filled.
+ *
+ * @csspart wrapper - The outer wrapper element with `role="group"`.
+ * @csspart slot - Each individual character slot.
+ * @csspart slot.active - The currently active slot.
+ * @csspart slot.filled - A slot that contains a character.
+ * @csspart slot.error - A slot in error state (when `invalid` is set).
+ * @csspart slot.selected - A slot in selected state (when Ctrl+A or double click).
+ * @csspart separator - A separator element between slots.
+ * @csspart cursor - The cursor element inside the active empty slot.
+ */
 class PinInput extends HTMLElement implements PinInputAttributes {
   // ─── State ───────────────────────────────
   private currentValue: string = ''
@@ -58,46 +88,58 @@ class PinInput extends HTMLElement implements PinInputAttributes {
   }
 
   // ─── Getters ───────────────────────────────
+
+  /** Number of input slots. Defaults to 6. */
   get length(): number {
     return Number(this.getAttribute('length') ?? DEFAULT_LENGTH)
   }
 
+  /** Current value of the input. */
   get value(): string {
     return this.getAttribute('value') ?? ''
   }
 
+  /** Regex pattern for valid characters. Defaults to `[0-9]`. */
   get pattern(): string {
     return this.getAttribute('pattern') ?? DEFAULT_PATTERN
   }
 
+  /** Name of the field for form submission. */
   get name(): string | undefined {
     return this.getAttribute('name') ?? undefined
   }
 
+  /** Autocomplete attribute. Defaults to `one-time-code`. */
   get autocomplete(): string {
     return this.getAttribute('autocomplete') ?? DEFAULT_AUTOCOMPLETE
   }
 
+  /** Whether the input is disabled. */
   get disabled(): boolean {
     return this.hasAttribute('disabled')
   }
 
+  /** Whether the input is in an invalid state. */
   get invalid(): boolean {
     return this.hasAttribute('invalid')
   }
 
+  /** Comma-separated slot positions after which a separator is rendered. */
   get separators(): string {
     return this.getAttribute('separators') ?? ''
   }
 
+  /** Whether the input is required for form submission. */
   get required(): boolean {
     return this.hasAttribute('required')
   }
 
+  /** Accessible label for the input group. */
   get ariaLabel(): string | null {
     return this.getAttribute('aria-label')
   }
 
+  /** ID of the element that describes the input. */
   get ariaDescribedBy(): string | null {
     return this.getAttribute('aria-describedby')
   }
