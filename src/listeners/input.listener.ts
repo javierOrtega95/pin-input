@@ -1,17 +1,33 @@
 import { Key } from '../constants'
 
-interface InputListenerContext {
+/** Context required to set up the input listener. */
+export interface InputListenerContext {
+  /** Returns the current PIN value. */
   getCurrentValue: () => string
+  /** Returns the maximum number of slots. */
   getLength: () => number
+  /** Returns the cursor position before the input event fired. */
   getCursorPositionBeforeInput: () => number
+  /** Returns the last key pressed before the input event fired. */
   getLastKey: () => string
+  /** Returns whether the input is in selecting state. */
   getIsSelecting: () => boolean
+  /** Returns the compiled regex pattern for valid characters. */
   getPatternRegex: () => RegExp
+  /** Sets the current PIN value. */
   setCurrentValue: (value: string) => void
+  /** Sets the selecting state. */
   setIsSelecting: (value: boolean) => void
+  /** Triggers a full DOM and state update. */
   update: VoidFunction
 }
 
+/**
+ * Sets up an input listener that handles character input, replacement and validation.
+ * @param target - The element to attach the listener to.
+ * @param context - The input listener context.
+ * @param signal - AbortSignal to remove the listener when needed.
+ */
 export function setupInputListener(
   target: EventTarget,
   {

@@ -1,12 +1,25 @@
-interface PasteListenerContext {
+/** Context required to set up the paste listener. */
+export interface PasteListenerContext {
+  /** Returns the current PIN value. */
   getCurrentValue: () => string
+  /** Returns the maximum number of slots. */
   getLength: () => number
+  /** Returns the internal hidden input element. */
   getInput: () => HTMLInputElement | null
+  /** Returns the compiled regex pattern for valid characters. */
   getPatternRegex: () => RegExp
+  /** Sets the current PIN value. */
   setCurrentValue: (value: string) => void
+  /** Triggers a full DOM and state update. */
   update: VoidFunction
 }
 
+/**
+ * Sets up a paste listener that validates and distributes pasted text across slots.
+ * @param target - The element to attach the listener to.
+ * @param context - The paste listener context.
+ * @param signal - AbortSignal to remove the listener when needed.
+ */
 export function setupPasteListener(
   target: EventTarget,
   {

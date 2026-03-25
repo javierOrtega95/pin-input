@@ -5,20 +5,38 @@ import {
   Key,
 } from '../constants'
 
-export interface KeydownListenerContext {
+/** Context required to set up the keydown listener. */
+interface KeydownListenerContext {
+  /** Returns the current PIN value. */
   getCurrentValue: () => string
+  /** Returns the maximum number of slots. */
   getLength: () => number
+  /** Returns whether the input is in selecting state. */
   getIsSelecting: () => boolean
+  /** Returns the internal hidden input element. */
   getInput: () => HTMLInputElement | null
+  /** Returns the compiled regex pattern for valid characters. */
   getPatternRegex: () => RegExp
+  /** Sets the current PIN value. */
   setCurrentValue: (value: string) => void
+  /** Sets the last key pressed. */
   setLastKey: (value: string) => void
+  /** Sets the cursor position before the input event fires. */
   setCursorPositionBeforeInput: (value: number) => void
+  /** Sets the selecting state. */
   setIsSelecting: (value: boolean) => void
+  /** Clears the current selection and resets the value. */
   clearSelection: () => void
+  /** Triggers a full DOM and state update. */
   update: VoidFunction
 }
 
+/**
+ * Sets up a keydown listener that handles navigation, deletion and selection.
+ * @param target - The element to attach the listener to.
+ * @param context - The keydown listener context.
+ * @param signal - AbortSignal to remove the listener when needed.
+ */
 export function setupKeydownListener(
   target: EventTarget,
   {
