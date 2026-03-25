@@ -1,0 +1,434 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/pin-input.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<pin-input>` — A headless, accessible PIN/OTP input web component.",
+          "name": "PinInput",
+          "cssParts": [
+            {
+              "description": "The outer wrapper element with `role=\"group\"`.",
+              "name": "wrapper"
+            },
+            {
+              "description": "Each individual character slot.",
+              "name": "slot"
+            },
+            {
+              "description": "The currently active slot.",
+              "name": "slot.active"
+            },
+            {
+              "description": "A slot that contains a character.",
+              "name": "slot.filled"
+            },
+            {
+              "description": "A slot in error state (when `invalid` is set).",
+              "name": "slot.error"
+            },
+            {
+              "description": "A slot in selected state (when Ctrl+A or double click).",
+              "name": "slot.selected"
+            },
+            {
+              "description": "A separator element between slots.",
+              "name": "separator"
+            },
+            {
+              "description": "The cursor element inside the active empty slot.",
+              "name": "cursor"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "currentValue",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "lastEmittedValue",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "lastKey",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "isFocused",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "isSelecting",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "cursorPositionBeforeInput",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "listenerController",
+              "type": {
+                "text": "AbortController"
+              },
+              "privacy": "private",
+              "default": "new AbortController()"
+            },
+            {
+              "kind": "field",
+              "name": "internals",
+              "type": {
+                "text": "ElementInternals"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "patternRegex",
+              "type": {
+                "text": "RegExp"
+              },
+              "privacy": "private",
+              "default": "new RegExp(`^${DEFAULT_PATTERN}$`)"
+            },
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true"
+            },
+            {
+              "kind": "field",
+              "name": "length",
+              "type": {
+                "text": "number"
+              },
+              "description": "Number of input slots. Defaults to 6.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "Current value of the input.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "pattern",
+              "type": {
+                "text": "string"
+              },
+              "description": "Regex pattern for valid characters. Defaults to `[0-9]`.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Name of the field for form submission.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "autocomplete",
+              "type": {
+                "text": "string"
+              },
+              "description": "Autocomplete attribute. Defaults to `one-time-code`.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the input is disabled.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "invalid",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the input is in an invalid state.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "separators",
+              "type": {
+                "text": "string"
+              },
+              "description": "Comma-separated slot positions after which a separator is rendered.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the input is required for form submission.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "ariaLabel",
+              "type": {
+                "text": "string | null"
+              },
+              "description": "Accessible label for the input group.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "ariaDescribedBy",
+              "type": {
+                "text": "string | null"
+              },
+              "description": "ID of the element that describes the input.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "$input",
+              "type": {
+                "text": "HTMLInputElement | null"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "$slots",
+              "type": {
+                "text": "Array<HTMLElement>"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "$wrapper",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "separatorPositions",
+              "type": {
+                "text": "number[]"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "setupListeners",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "clearSelection",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "update",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "render",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<{ value: string }>"
+              },
+              "description": "Fired when the value changes.",
+              "name": "pin-change"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<{ value: string }>"
+              },
+              "description": "Fired when all slots are filled.",
+              "name": "pin-complete"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "length",
+              "type": {
+                "text": "number"
+              },
+              "description": "Number of input slots. Defaults to 6."
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "Initial value of the input."
+            },
+            {
+              "name": "pattern",
+              "type": {
+                "text": "string"
+              },
+              "description": "Regex pattern for valid characters. Defaults to `[0-9]`."
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "description": "Name of the field for form submission."
+            },
+            {
+              "name": "autocomplete",
+              "type": {
+                "text": "string"
+              },
+              "description": "Autocomplete attribute. Defaults to `one-time-code`."
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Disables the input."
+            },
+            {
+              "name": "invalid",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Marks the input as invalid."
+            },
+            {
+              "name": "autofocus",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Focuses the input on mount."
+            },
+            {
+              "name": "separators",
+              "type": {
+                "text": "string"
+              },
+              "description": "Comma-separated slot positions after which a separator is rendered (e.g. `\"3\"` or `\"2,4\"`)."
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Marks the input as required."
+            },
+            {
+              "name": "aria-label",
+              "type": {
+                "text": "string"
+              },
+              "description": "Accessible label for the input group."
+            },
+            {
+              "name": "aria-describedby",
+              "type": {
+                "text": "string"
+              },
+              "description": "ID of the element that describes the input."
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "tagName": "pin-input",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "pin-input",
+          "declaration": {
+            "name": "PinInput",
+            "module": "src/pin-input.ts"
+          }
+        }
+      ]
+    }
+  ]
+}
