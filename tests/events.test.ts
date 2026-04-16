@@ -65,4 +65,22 @@ describe('events', () => {
       expect(handler).not.toHaveBeenCalled()
     })
   })
+
+  describe('mask', () => {
+    it('emits the real value in pin-complete even when mask is active', async () => {
+      document.body.innerHTML =
+        '<pin-input mask style="display:block;width:300px;height:60px;"></pin-input>'
+
+      const $pinInput = getPinInput()!
+      const handler = vi.fn()
+
+      $pinInput.addEventListener('pin-complete', handler)
+
+      await userEvent.click($pinInput)
+      await userEvent.keyboard('123456')
+
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect(handler.mock.calls[0][0].detail.value).toBe('123456')
+    })
+  })
 })

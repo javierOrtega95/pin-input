@@ -73,4 +73,32 @@ describe('rendering', () => {
 
     expect(styles.opacity).toBe('0')
   })
+
+  describe('mask', () => {
+    it('renders • instead of the real character when mask is active', () => {
+      document.body.innerHTML = '<pin-input mask value="123"></pin-input>'
+
+      const $slots = getSlots()
+
+      expect($slots[0]?.textContent).toBe('•')
+      expect($slots[1]?.textContent).toBe('•')
+      expect($slots[2]?.textContent).toBe('•')
+    })
+
+    it('renders the input as type password when mask is active', () => {
+      document.body.innerHTML = '<pin-input mask></pin-input>'
+
+      expect(getInput()?.getAttribute('type')).toBe('password')
+    })
+
+    it('adds masked part to filled slots when mask is active', () => {
+      document.body.innerHTML = '<pin-input mask value="12"></pin-input>'
+
+      const $slots = getSlots()
+
+      expect($slots[0]?.getAttribute('part')).toContain('masked')
+      expect($slots[1]?.getAttribute('part')).toContain('masked')
+      expect($slots[2]?.getAttribute('part')).not.toContain('masked')
+    })
+  })
 })

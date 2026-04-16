@@ -83,6 +83,21 @@ describe('attributes', () => {
     })
   })
 
+  describe('mask', () => {
+    it('updates slots when mask attribute is toggled', () => {
+      document.body.innerHTML = '<pin-input value="123"></pin-input>'
+
+      const $pinInput = document.querySelector('pin-input')!
+      $pinInput.setAttribute('mask', '')
+
+      const $slots = getSlots()
+
+      expect($slots[0].textContent).toBe('•')
+      expect($slots[1].textContent).toBe('•')
+      expect($slots[2].textContent).toBe('•')
+    })
+  })
+
   describe('required', () => {
     beforeEach(() => {
       document.body.innerHTML = '<pin-input required></pin-input>'
