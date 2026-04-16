@@ -176,6 +176,58 @@ class PinInput extends HTMLElement implements PinInputAttributes {
     return this.separators.split(',').map(Number)
   }
 
+  // ─── Setters ───────────────────────────────
+
+  /** @param value - Number of input slots. */
+  set length(value: number) {
+    this.setAttribute('length', String(value))
+  }
+
+  /** @param value - Current value of the input. */
+  set value(value: string) {
+    this.setAttribute('value', value)
+  }
+
+  /** @param value - Regex pattern for valid characters. */
+  set pattern(value: string) {
+    this.setAttribute('pattern', value)
+  }
+
+  /** @param value - Name of the field for form submission. */
+  set name(value: string) {
+    this.setAttribute('name', value)
+  }
+
+  /** @param value - Autocomplete attribute. */
+  set autocomplete(value: string) {
+    this.setAttribute('autocomplete', value)
+  }
+
+  /** @param value - Whether the input is disabled. */
+  set disabled(value: boolean) {
+    this.toggleAttribute('disabled', value)
+  }
+
+  /** @param value - Whether the input is in an invalid state. */
+  set invalid(value: boolean) {
+    this.toggleAttribute('invalid', value)
+  }
+
+  /** @param value - Whether to mask the input characters. */
+  set mask(value: boolean) {
+    this.toggleAttribute('mask', value)
+  }
+
+  /** @param value - Comma-separated slot positions after which a separator is rendered. */
+  set separators(value: string) {
+    this.setAttribute('separators', value)
+  }
+
+  /** @param value - Whether the input is required for form submission. */
+  set required(value: boolean) {
+    this.toggleAttribute('required', value)
+  }
+
   // ─── Lifecycle ───────────────────────────────
   connectedCallback(): void {
     this.currentValue = this.value
