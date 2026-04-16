@@ -15,7 +15,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/javierOrtega95/pin-input"
+    "url": "git+https://github.com/javierOrtega95/pin-input.git"
   },
   "homepage": "https://javierortega95.github.io/pin-input",
   "main": "./dist/pin-input.umd.cjs",
