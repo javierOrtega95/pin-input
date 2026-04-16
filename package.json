@@ -1,11 +1,43 @@
 {
-  "name": "pin-input",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@javierortega95/pin-input",
+  "version": "0.1.0",
+  "description": "A headless, accessible PIN/OTP input web component. Framework-agnostic, zero dependencies, with native form participation.",
   "type": "module",
+  "keywords": [
+    "web-component",
+    "pin-input",
+    "otp",
+    "2fa",
+    "headless",
+    "accessible"
+  ],
+  "author": "Javier Ortega Carrasco",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/javierOrtega95/pin-input"
+  },
+  "homepage": "https://javierortega95.github.io/pin-input",
+  "main": "./dist/pin-input.umd.cjs",
+  "module": "./dist/pin-input.js",
+  "types": "./dist/types/pin-input.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/pin-input.js",
+      "require": "./dist/pin-input.umd.cjs",
+      "types": "./dist/types/pin-input.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "custom-elements.json",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "customElements": "custom-elements.json",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build && tsc --emitDeclarationOnly",
     "preview": "vite preview",
     "test": "vitest",
     "analyze": "cem analyze --globs src/pin-input.ts"
@@ -22,6 +54,5 @@
     "typescript-eslint": "^8.57.1",
     "vite": "^8.0.0",
     "vitest": "^4.1.1"
-  },
-  "customElements": "custom-elements.json"
+  }
 }
