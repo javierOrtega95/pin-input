@@ -50,6 +50,7 @@
 | `invalid`          | `boolean` | `false`         | Marks the input as invalid                      |
 | `required`         | `boolean` | `false`         | Marks the input as required for form validation |
 | `autofocus`        | `boolean` | `false`         | Focuses the input on mount                      |
+| `mask`             | `boolean` | `false`         | Masks the input characters (e.g. for passwords) |
 | `separators`       | `string`  | —               | Slot positions after which a separator renders  |
 | `aria-label`       | `string`  | —               | Accessible label for the input group            |
 | `aria-describedby` | `string`  | —               | ID of the element that describes the input      |
@@ -71,6 +72,7 @@
 | `slot filled`   | A slot that contains a character                  |
 | `slot error`    | A slot in error state (when `invalid` is set)     |
 | `slot selected` | A slot in selected state (Ctrl+A or double click) |
+| `slot masked`   | A slot that is masked (when `mask` is set)        |
 | `separator`     | A separator element between slots                 |
 | `cursor`        | The cursor element inside the active empty slot   |
 
