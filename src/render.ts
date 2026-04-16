@@ -18,6 +18,8 @@ interface BuildInputContext {
   getDisabled: () => boolean
   /** Returns whether the input is in an invalid state. */
   getInvalid: () => boolean
+  /** Returns whether the input characters should be masked. */
+  getMask: () => boolean
   /** Returns whether the input is required. */
   getRequired: () => boolean
   /** Returns the aria-label attribute value. */
@@ -64,12 +66,13 @@ export function buildInput({
   getAutocomplete,
   getDisabled,
   getInvalid,
+  getMask,
   getRequired,
   getAriaLabel,
   getAriaDescribedBy,
 }: BuildInputContext): string {
   const attrs = [
-    `type="text"`,
+    `type="${getMask() ? 'password' : 'text'}"`,
     `autocomplete="${getAutocomplete()}"`,
     `value="${getCurrentValue()}"`,
     getName() ? `name="${getName()}"` : '',

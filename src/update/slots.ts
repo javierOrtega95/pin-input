@@ -12,6 +12,8 @@ interface UpdateSlotsPartsContext {
   getDisabled: () => boolean
   /** Returns whether the input is in an invalid state. */
   getInvalid: () => boolean
+  /** Returns whether the input characters should be masked. */
+  getMask: () => boolean
   /** Returns the internal hidden input element. */
   getInput: () => HTMLInputElement | null
   /** Returns the list of slot elements. */
@@ -30,6 +32,7 @@ export function updateSlotsParts({
   getIsSelecting,
   getDisabled,
   getInvalid,
+  getMask,
   getInput,
   getSlots,
 }: UpdateSlotsPartsContext): void {
@@ -48,6 +51,8 @@ export function updateSlotsParts({
 
     const isFilled = index < currentValue.length
 
+    const isMasked = isFilled && getMask()
+
     const isSelected = getIsSelecting() && isFilled
 
     const isError = getInvalid()
@@ -55,7 +60,7 @@ export function updateSlotsParts({
     const cursorHtml =
       isActive && !currentChar ? `<span part="cursor"></span>` : ''
 
-    slot.innerHTML = currentChar + cursorHtml
+    slot.innerHTML = (isMasked ? '•' : currentChar) + cursorHtml
 
     slot.setAttribute(
       'part',
@@ -63,6 +68,7 @@ export function updateSlotsParts({
         'slot',
         isActive && !getIsSelecting() && 'active',
         isFilled && 'filled',
+        isMasked && 'masked',
         isError && 'error',
         isSelected && 'selected',
       ]

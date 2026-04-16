@@ -35,6 +35,7 @@ import { updateSlotsParts } from './update/slots'
  * @attr {boolean} invalid - Marks the input as invalid.
  * @attr {boolean} required - Marks the input as required.
  * @attr {boolean} autofocus - Focuses the input on mount.
+ * @attr {boolean} mask - Masks entered characters showing `•`. The real value is still emitted in events.
  * @attr {string} separators - Comma-separated slot positions after which a separator is rendered (e.g. `"3"` or `"2,4"`).
  * @attr {string} aria-label - Accessible label for the input group.
  * @attr {string} aria-describedby - ID of the element that describes the input.
@@ -48,6 +49,7 @@ import { updateSlotsParts } from './update/slots'
  * @csspart slot.filled - A slot that contains a character.
  * @csspart slot.error - A slot in error state (when `invalid` is set).
  * @csspart slot.selected - A slot in selected state (when Ctrl+A or double click).
+ * @csspart slot.masked - A filled slot when mask is active.
  * @csspart separator - A separator element between slots.
  * @csspart cursor - The cursor element inside the active empty slot.
  */
@@ -75,6 +77,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
     'disabled',
     'invalid',
     'autofocus',
+    'mask',
     'separators',
     'required',
     'aria-label',
@@ -122,6 +125,11 @@ class PinInput extends HTMLElement implements PinInputAttributes {
   /** Whether the input is in an invalid state. */
   get invalid(): boolean {
     return this.hasAttribute('invalid')
+  }
+
+  /** Whether to mask the input characters */
+  get mask(): boolean {
+    return this.hasAttribute('mask')
   }
 
   /** Comma-separated slot positions after which a separator is rendered. */
@@ -356,6 +364,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       getIsSelecting: () => this.isSelecting,
       getDisabled: () => this.disabled,
       getInvalid: () => this.invalid,
+      getMask: () => this.mask,
       getInput: () => this.$input,
       getSlots: () => this.$slots,
     })
@@ -402,6 +411,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       getAutocomplete: () => this.autocomplete,
       getDisabled: () => this.disabled,
       getInvalid: () => this.invalid,
+      getMask: () => this.mask,
       getRequired: () => this.required,
       getAriaLabel: () => this.ariaLabel,
       getAriaDescribedBy: () => this.ariaDescribedBy,

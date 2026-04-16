@@ -19,6 +19,8 @@ export interface PinInputAttributes {
   invalid?: boolean
   /** Focuses the input on mount. */
   autofocus?: boolean
+  /** Whether to mask the input characters (e.g. for passwords). */
+  mask?: boolean
   /** Comma-separated slot positions after which a separator is rendered. */
   separators?: string
   /** Whether the input is required for form submission. */
