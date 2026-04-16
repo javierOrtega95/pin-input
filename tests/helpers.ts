@@ -1,4 +1,6 @@
-export function getPinInput(): Element | null {
+import type { PinInputAttributes } from '../src/types'
+
+export function getPinInput(): (HTMLElement & PinInputAttributes) | null {
   return document.querySelector('pin-input')
 }
 

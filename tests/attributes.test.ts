@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { getInput, getSlots, getWrapper } from './helpers'
+import { getInput, getPinInput, getSlots, getWrapper } from './helpers'
 
 describe('attributes', () => {
   beforeEach(() => {
@@ -168,6 +168,44 @@ describe('attributes', () => {
       const $input = getInput()
 
       expect($input?.getAttribute('aria-describedby')).toBe('hint')
+    })
+  })
+
+  describe('setters', () => {
+    it('sets length via property setter', () => {
+      const $pinInput = getPinInput()!
+      $pinInput.length = 4
+
+      expect($pinInput.getAttribute('length')).toBe('4')
+    })
+
+    it('sets name via property setter', () => {
+      const $pinInput = getPinInput()!
+      $pinInput.name = 'otp'
+
+      expect($pinInput.getAttribute('name')).toBe('otp')
+    })
+
+    it('sets disabled via property setter', () => {
+      const $pinInput = getPinInput()!
+      $pinInput.disabled = true
+
+      expect($pinInput.hasAttribute('disabled')).toBe(true)
+
+      $pinInput.disabled = false
+
+      expect($pinInput.hasAttribute('disabled')).toBe(false)
+    })
+
+    it('sets mask via property setter', () => {
+      const $pinInput = getPinInput()!
+      $pinInput.mask = true
+
+      expect($pinInput.hasAttribute('mask')).toBe(true)
+
+      $pinInput.mask = false
+
+      expect($pinInput.hasAttribute('mask')).toBe(false)
     })
   })
 })
