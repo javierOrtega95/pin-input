@@ -36,6 +36,10 @@
               "name": "slot.selected"
             },
             {
+              "description": "A filled slot when mask is active.",
+              "name": "slot.masked"
+            },
+            {
               "description": "A separator element between slots.",
               "name": "separator"
             },
@@ -195,6 +199,15 @@
                 "text": "boolean"
               },
               "description": "Whether the input is in an invalid state.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "mask",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether to mask the input characters",
               "readonly": true
             },
             {
@@ -382,6 +395,13 @@
                 "text": "boolean"
               },
               "description": "Focuses the input on mount."
+            },
+            {
+              "name": "mask",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Masks entered characters showing `•`. The real value is still emitted in events."
             },
             {
               "name": "separators",
