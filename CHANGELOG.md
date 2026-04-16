@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.1] - 2026-04-16
+
+### Fixed
+
+- Added property setters for all public attributes to ensure compatibility with React 19
+
 ## [0.1.0] - 2026-04-16
 
 ### Added
