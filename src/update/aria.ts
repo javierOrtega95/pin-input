@@ -10,6 +10,8 @@ interface SyncAriaAttributesContext {
   getAriaLabel: () => string | null
   /** Returns the aria-describedby attribute value. */
   getAriaDescribedBy: () => string | null
+  /** Returns the inputmode attribute value. */
+  getInputmode: () => string
   /** Returns the internal hidden input element. */
   getInput: () => HTMLInputElement | null
   /** Returns the wrapper element. */
@@ -27,6 +29,7 @@ export function syncAriaAttributes({
   getDisabled,
   getAriaLabel,
   getAriaDescribedBy,
+  getInputmode,
   getInput,
   getWrapper,
 }: SyncAriaAttributesContext): void {
@@ -38,6 +41,7 @@ export function syncAriaAttributes({
   $input?.setAttribute('aria-invalid', String(getInvalid()))
   $input?.setAttribute('aria-required', String(getRequired()))
   $input?.setAttribute('aria-disabled', String(getDisabled()))
+  $input?.setAttribute('inputmode', getInputmode())
 
   if (ariaLabel) {
     $input?.setAttribute('aria-label', ariaLabel)

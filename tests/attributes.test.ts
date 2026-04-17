@@ -171,6 +171,31 @@ describe('attributes', () => {
     })
   })
 
+  describe('inputmode', () => {
+    it('sets inputmode="numeric" on the internal input by default', () => {
+      const $input = getInput()
+
+      expect($input?.getAttribute('inputmode')).toBe('numeric')
+    })
+
+    it('reflects a custom inputmode on the internal input', () => {
+      document.body.innerHTML = '<pin-input inputmode="text"></pin-input>'
+
+      const $input = getInput()
+
+      expect($input?.getAttribute('inputmode')).toBe('text')
+    })
+
+    it('updates inputmode on the internal input when attribute changes', () => {
+      const $pinInput = document.querySelector('pin-input')!
+      $pinInput.setAttribute('inputmode', 'decimal')
+
+      const $input = getInput()
+
+      expect($input?.getAttribute('inputmode')).toBe('decimal')
+    })
+  })
+
   describe('setters', () => {
     it('sets length via property setter', () => {
       const $pinInput = getPinInput()!

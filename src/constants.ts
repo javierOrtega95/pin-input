@@ -7,6 +7,9 @@ export const DEFAULT_PATTERN = '[0-9]'
 /** Default autocomplete attribute value. */
 export const DEFAULT_AUTOCOMPLETE = 'one-time-code'
 
+/** Default inputmode attribute value. */
+export const DEFAULT_INPUTMODE = 'numeric'
+
 /** Keyboard key values used throughout the component. */
 export enum Key {
   Up = 'ArrowUp',

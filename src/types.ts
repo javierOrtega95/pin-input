@@ -13,6 +13,8 @@ export interface PinInputAttributes {
   name?: string
   /** Autocomplete attribute. Defaults to `one-time-code`. */
   autocomplete?: string
+  /** Inputmode attribute for mobile keyboards. Defaults to `numeric`. */
+  inputmode?: string
   /** Whether the input is disabled. */
   disabled?: boolean
   /** Whether the input is in an invalid state. */

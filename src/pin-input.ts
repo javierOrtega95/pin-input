@@ -1,5 +1,6 @@
 import {
   DEFAULT_AUTOCOMPLETE,
+  DEFAULT_INPUTMODE,
   DEFAULT_LENGTH,
   DEFAULT_PATTERN,
 } from './constants'
@@ -31,6 +32,7 @@ import { updateSlotsParts } from './update/slots'
  * @attr {string} pattern - Regex pattern for valid characters. Defaults to `[0-9]`.
  * @attr {string} name - Name of the field for form submission.
  * @attr {string} autocomplete - Autocomplete attribute. Defaults to `one-time-code`.
+ * @attr {string} inputmode - Inputmode attribute for mobile keyboards. Defaults to `numeric`.
  * @attr {boolean} disabled - Disables the input.
  * @attr {boolean} invalid - Marks the input as invalid.
  * @attr {boolean} required - Marks the input as required.
@@ -74,6 +76,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
     'pattern',
     'name',
     'autocomplete',
+    'inputmode',
     'disabled',
     'invalid',
     'autofocus',
@@ -115,6 +118,11 @@ class PinInput extends HTMLElement implements PinInputAttributes {
   /** Autocomplete attribute. Defaults to `one-time-code`. */
   get autocomplete(): string {
     return this.getAttribute('autocomplete') ?? DEFAULT_AUTOCOMPLETE
+  }
+
+  /** Inputmode attribute for mobile keyboards. Defaults to `numeric`. */
+  get inputmode(): string {
+    return this.getAttribute('inputmode') ?? DEFAULT_INPUTMODE
   }
 
   /** Whether the input is disabled. */
@@ -201,6 +209,11 @@ class PinInput extends HTMLElement implements PinInputAttributes {
   /** @param value - Autocomplete attribute. */
   set autocomplete(value: string) {
     this.setAttribute('autocomplete', value)
+  }
+
+  /** @param value - Inputmode attribute for mobile keyboards. */
+  set inputmode(value: string) {
+    this.setAttribute('inputmode', value)
   }
 
   /** @param value - Whether the input is disabled. */
@@ -437,6 +450,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       getDisabled: () => this.disabled,
       getAriaLabel: () => this.ariaLabel,
       getAriaDescribedBy: () => this.ariaDescribedBy,
+      getInputmode: () => this.inputmode,
       getInput: () => this.$input,
       getWrapper: () => this.$wrapper,
     })
@@ -461,6 +475,7 @@ class PinInput extends HTMLElement implements PinInputAttributes {
       getCurrentValue: () => this.currentValue,
       getName: () => this.name,
       getAutocomplete: () => this.autocomplete,
+      getInputmode: () => this.inputmode,
       getDisabled: () => this.disabled,
       getInvalid: () => this.invalid,
       getMask: () => this.mask,

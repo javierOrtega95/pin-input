@@ -14,6 +14,8 @@ interface BuildInputContext {
   getName: () => string | undefined
   /** Returns the autocomplete attribute value. */
   getAutocomplete: () => string
+  /** Returns the inputmode attribute value. */
+  getInputmode: () => string
   /** Returns whether the input is disabled. */
   getDisabled: () => boolean
   /** Returns whether the input is in an invalid state. */
@@ -64,6 +66,7 @@ export function buildInput({
   getCurrentValue,
   getName,
   getAutocomplete,
+  getInputmode,
   getDisabled,
   getInvalid,
   getMask,
@@ -74,6 +77,7 @@ export function buildInput({
   const attrs = [
     `type="${getMask() ? 'password' : 'text'}"`,
     `autocomplete="${getAutocomplete()}"`,
+    `inputmode="${getInputmode()}"`,
     `value="${getCurrentValue()}"`,
     getName() ? `name="${getName()}"` : '',
     getDisabled() ? 'disabled aria-disabled="true"' : '',
