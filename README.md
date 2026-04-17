@@ -1,8 +1,16 @@
-## A headless, accessible PIN/OTP web component. Framework-agnostic, zero dependencies, with native form participation.
+# pin-input
+
+> A headless, accessible PIN/OTP web component. Framework-agnostic, zero dependencies, with native form participation.
+
+[![npm version](https://img.shields.io/npm/v/@javierortega95/pin-input?color=58a6ff)](https://www.npmjs.com/package/@javierortega95/pin-input)
+[![npm bundle size](https://img.shields.io/bundlephobia/minzip/@javierortega95/pin-input?color=58a6ff)](https://bundlephobia.com/package/@javierortega95/pin-input)
+[![license](https://img.shields.io/npm/l/@javierortega95/pin-input?color=58a6ff)](./LICENSE)
 
 ```html
 <pin-input length="6"></pin-input>
 ```
+
+**[Live demo →](https://javierortega95.github.io/pin-input/)**
 
 ---
 
@@ -13,25 +21,128 @@
 - 📋 **Smart paste** — distributes pasted text across slots automatically
 - 📱 **Autofill** — `autocomplete="one-time-code"` for SMS autofill on mobile
 - 📝 **Form participation** — works with native `<form>`, `FormData` and HTML5 validation
-- 🔧 **Framework-agnostic** — works in vanilla JS, React, Vue, Astro, and any framework
+- 🔧 **Framework-agnostic** — works in Vanilla JS, React, Vue, Angular, and any framework
+
+---
+
+## Installation
+
+```bash
+npm install @javierortega95/pin-input
+pnpm add @javierortega95/pin-input
+yarn add @javierortega95/pin-input
+```
+
+Or via CDN:
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/@javierortega95/pin-input@0.1.1/dist/pin-input.js"></script>
+```
 
 ---
 
 ## Usage
 
+### Vanilla JS
+
 ```html
-<pin-input length="6" name="otp"></pin-input>
+<pin-input length="6" name="otp" autocomplete="one-time-code"></pin-input>
 
 <script type="module">
   import '@javierortega95/pin-input'
 
   const input = document.querySelector('pin-input')
 
+  input.addEventListener('pin-change', (e) => {
+    console.log(e.detail.value) // "123"
+  })
+
   input.addEventListener('pin-complete', (e) => {
     console.log(e.detail.value) // "123456"
   })
 </script>
 ```
+
+### React 19
+
+```tsx
+import '@javierortega95/pin-input'
+
+export default function App() {
+  return (
+    <pin-input
+      length="6"
+      name="otp"
+      autocomplete="one-time-code"
+      onpin-change={(e) => console.log(e.detail.value)}
+      onpin-complete={(e) => console.log(e.detail.value)}
+    />
+  )
+}
+```
+
+> **React 18 and earlier:** use `useRef` + `addEventListener` to listen to events, as inline event handlers for custom events are not supported.
+
+### Vue
+
+```vue
+<script setup>
+import '@javierortega95/pin-input'
+
+function onPinChange(e) {
+  console.log('change:', e.detail.value)
+}
+
+function onPinComplete(e) {
+  console.log('complete:', e.detail.value)
+}
+</script>
+
+<template>
+  <pin-input
+    length="6"
+    name="otp"
+    autocomplete="one-time-code"
+    @pin-change="onPinChange"
+    @pin-complete="onPinComplete"
+  />
+</template>
+```
+
+### Angular
+
+```ts
+import '@javierortega95/pin-input'
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
+import { bootstrapApplication } from '@angular/platform-browser'
+
+@Component({
+  selector: 'app-root',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <pin-input
+      length="6"
+      name="otp"
+      autocomplete="one-time-code"
+      (pin-change)="onPinChange($event)"
+      (pin-complete)="onPinComplete($event)"
+    ></pin-input>
+  `,
+})
+export class App {
+  onPinChange(e: Event) {
+    console.log('change:', (e as CustomEvent).detail.value)
+  }
+
+  onPinComplete(e: Event) {
+    console.log('complete:', (e as CustomEvent).detail.value)
+  }
+}
+
+bootstrapApplication(App)
+```
+
+> **Note:** `CUSTOM_ELEMENTS_SCHEMA` is required for Angular to recognize `<pin-input>` as a valid element.
 
 ---
 
@@ -62,7 +173,7 @@
 | `pin-change`   | Every time the value changes | `{ value: string }` |
 | `pin-complete` | When all slots are filled    | `{ value: string }` |
 
-### Parts
+### CSS Parts
 
 | Part            | Description                                       |
 | --------------- | ------------------------------------------------- |
@@ -81,43 +192,81 @@
 ## Styling
 
 `<pin-input>` is completely unstyled. Use `::part()` to style each state:
+
 ```css
+pin-input::part(wrapper) {
+  display: flex;
+  gap: 8px;
+}
+
 pin-input::part(slot) {
   width: 48px;
   height: 56px;
-  border: 2px solid #e2e8f0;
+  border: 1.5px solid #d0d7de;
   border-radius: 8px;
-  font-size: 24px;
-}
-
-pin-input::part(slot active) {
-  border-color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
 }
 
 pin-input::part(slot filled) {
   border-color: #94a3b8;
 }
 
+pin-input::part(slot active) {
+  border-color: #58a6ff;
+}
+
 pin-input::part(slot error) {
-  border-color: #ef4444;
+  border-color: #f85d7f;
+  background: #fff0f3;
 }
 
 pin-input::part(slot selected) {
-  background-color: #eff6ff;
-  border-color: #3b82f6;
+  background: #eff6ff;
+  border-color: #58a6ff;
+}
+
+pin-input::part(slot masked) {
+  color: #58a6ff;
 }
 
 pin-input::part(cursor) {
-  width: 2px;
-  height: 24px;
-  background-color: #3b82f6;
+  width: 1.5px;
+  height: 22px;
+  background: #58a6ff;
   animation: blink 1s step-end infinite;
 }
 
 pin-input::part(separator) {
-  width: 8px;
+  width: 12px;
   height: 2px;
-  background-color: #e2e8f0;
-  margin: 0 4px;
+  background: #cbd5e1;
+  border-radius: 2px;
 }
+```
+
+---
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a new branch: `git checkout -b feat/your-feature`
+3. Make your changes and add tests if needed
+4. Run the test suite: `pnpm test`
+5. Commit following [Conventional Commits](https://www.conventionalcommits.org/): `feat: add your feature`
+6. Open a pull request
+
+### Development setup
+
+```bash
+git clone https://github.com/javierOrtega95/pin-input.git
+cd pin-input
+pnpm install
+pnpm dev     # start dev server
+pnpm test    # run tests
+pnpm build   # build for production
 ```
