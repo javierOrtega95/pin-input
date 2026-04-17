@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.2] - 2026-04-18
+
+### Fixed
+
+- Added `inputmode` attribute (default: `numeric`) so mobile devices show the numeric keyboard by default, matching the default `pattern="[0-9]"`. The value can be overridden with any valid `inputmode` value (e.g. `"text"`, `"decimal"`, `"tel"`).
+
 ## [0.1.1] - 2026-04-16
 
 ### Fixed
