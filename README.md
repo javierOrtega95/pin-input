@@ -36,7 +36,7 @@ yarn add @javierortega95/pin-input
 Or via CDN:
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/@javierortega95/pin-input@0.1.1/dist/pin-input.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@javierortega95/pin-input@0.1.2/dist/pin-input.js"></script>
 ```
 
 ---
@@ -157,6 +157,7 @@ bootstrapApplication(App)
 | `pattern`          | `string`  | `[0-9]`         | Regex pattern for valid characters              |
 | `name`             | `string`  | —               | Field name for form submission                  |
 | `autocomplete`     | `string`  | `one-time-code` | Autocomplete attribute on the internal input    |
+| `inputmode`        | `string`  | `numeric`       | Virtual keyboard type on mobile devices         |
 | `disabled`         | `boolean` | `false`         | Disables the input                              |
 | `invalid`          | `boolean` | `false`         | Marks the input as invalid                      |
 | `required`         | `boolean` | `false`         | Marks the input as required for form validation |

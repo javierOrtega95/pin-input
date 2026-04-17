@@ -145,7 +145,12 @@
                 "text": "number"
               },
               "description": "Number of input slots. Defaults to 6.",
-              "readonly": true
+              "parameters": [
+                {
+                  "description": "Number of input slots.",
+                  "name": "value"
+                }
+              ]
             },
             {
               "kind": "field",
@@ -154,7 +159,12 @@
                 "text": "string"
               },
               "description": "Current value of the input.",
-              "readonly": true
+              "parameters": [
+                {
+                  "description": "Current value of the input.",
+                  "name": "value"
+                }
+              ]
             },
             {
               "kind": "field",
@@ -163,7 +173,12 @@
                 "text": "string"
               },
               "description": "Regex pattern for valid characters. Defaults to `[0-9]`.",
-              "readonly": true
+              "parameters": [
+                {
+                  "description": "Regex pattern for valid characters.",
+                  "name": "value"
+                }
+              ]
             },
             {
               "kind": "field",
@@ -172,7 +187,12 @@
                 "text": "string | undefined"
               },
               "description": "Name of the field for form submission.",
-              "readonly": true
+              "parameters": [
+                {
+                  "description": "Name of the field for form submission.",
+                  "name": "value"
+                }
+              ]
             },
             {
               "kind": "field",
@@ -181,7 +201,26 @@
                 "text": "string"
               },
               "description": "Autocomplete attribute. Defaults to `one-time-code`.",
-              "readonly": true
+              "parameters": [
+                {
+                  "description": "Autocomplete attribute.",
+                  "name": "value"
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "inputmode",
+              "type": {
+                "text": "string"
+              },
+              "description": "Inputmode attribute for mobile keyboards. Defaults to `numeric`.",
+              "parameters": [
+                {
+                  "description": "Inputmode attribute for mobile keyboards.",
+                  "name": "value"
+                }
+              ]
             },
             {
               "kind": "field",
@@ -190,7 +229,12 @@
                 "text": "boolean"
               },
               "description": "Whether the input is disabled.",
-              "readonly": true
+              "parameters": [
+                {
+                  "description": "Whether the input is disabled.",
+                  "name": "value"
+                }
+              ]
             },
             {
               "kind": "field",
@@ -199,7 +243,12 @@
                 "text": "boolean"
               },
               "description": "Whether the input is in an invalid state.",
-              "readonly": true
+              "parameters": [
+                {
+                  "description": "Whether the input is in an invalid state.",
+                  "name": "value"
+                }
+              ]
             },
             {
               "kind": "field",
@@ -208,7 +257,12 @@
                 "text": "boolean"
               },
               "description": "Whether to mask the input characters",
-              "readonly": true
+              "parameters": [
+                {
+                  "description": "Whether to mask the input characters.",
+                  "name": "value"
+                }
+              ]
             },
             {
               "kind": "field",
@@ -217,7 +271,12 @@
                 "text": "string"
               },
               "description": "Comma-separated slot positions after which a separator is rendered.",
-              "readonly": true
+              "parameters": [
+                {
+                  "description": "Comma-separated slot positions after which a separator is rendered.",
+                  "name": "value"
+                }
+              ]
             },
             {
               "kind": "field",
@@ -226,7 +285,12 @@
                 "text": "boolean"
               },
               "description": "Whether the input is required for form submission.",
-              "readonly": true
+              "parameters": [
+                {
+                  "description": "Whether the input is required for form submission.",
+                  "name": "value"
+                }
+              ]
             },
             {
               "kind": "field",
@@ -374,6 +438,13 @@
                 "text": "string"
               },
               "description": "Autocomplete attribute. Defaults to `one-time-code`."
+            },
+            {
+              "name": "inputmode",
+              "type": {
+                "text": "string"
+              },
+              "description": "Inputmode attribute for mobile keyboards. Defaults to `numeric`."
             },
             {
               "name": "disabled",
