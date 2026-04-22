@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3] - 2026-04-22
+
+### Fixed
+
+- Arrow key navigation now works correctly in Firefox. The previous implementation relied on `requestAnimationFrame` to read the cursor position after the browser moved it, but Firefox executed the callback before the cursor had actually moved, causing a one-frame visual lag. Arrow keys now use `preventDefault` and move the cursor explicitly via `setSelectionRange`.
+- Tabbing into a prefilled input now correctly positions the cursor on the last filled slot. The browser's default tab-focus selection was overriding the cursor placement set in the focus handler.
+
 ## [0.1.2] - 2026-04-18
 
 ### Fixed

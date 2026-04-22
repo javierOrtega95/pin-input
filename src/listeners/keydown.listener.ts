@@ -227,6 +227,11 @@ export function setupKeydownListener(
       )
 
       if (isHorizontalArrow) {
+        keyEvent.preventDefault()
+
+        const rawCursor = getInput()?.selectionStart ?? 0
+        const cursorPosition = Math.min(rawCursor, getLength() - 1)
+
         if (getIsSelecting()) {
           setIsSelecting(false)
 
@@ -241,23 +246,12 @@ export function setupKeydownListener(
             getInput()?.setSelectionRange(0, 0)
           }
 
-          // defer update to next frame so cursor has already moved
-          requestAnimationFrame(() => update())
+          update()
           return
-        }
-
-        const rawCursor = getInput()?.selectionStart ?? 0
-        const cursorPosition = Math.min(rawCursor, getLength() - 1)
-
-        // sync if cursor was out of bounds
-        if (rawCursor > getLength() - 1) {
-          getInput()?.setSelectionRange(cursorPosition, cursorPosition)
         }
 
         // ctrl/meta + arrow — jump to start or end
         if (keyEvent.ctrlKey || keyEvent.metaKey) {
-          keyEvent.preventDefault()
-
           if (keyEvent.key === Key.Left) {
             getInput()?.setSelectionRange(0, 0)
           } else {
@@ -269,9 +263,7 @@ export function setupKeydownListener(
             getInput()?.setSelectionRange(endPosition, endPosition)
           }
 
-          // defer update to next frame so cursor has already moved
-          requestAnimationFrame(() => update())
-
+          update()
           return
         }
 
@@ -283,13 +275,13 @@ export function setupKeydownListener(
           cursorPosition >= Math.min(getCurrentValue().length, getLength() - 1)
 
         if ((isLeftMove && isAtStart) || (isRightMove && isAtEnd)) {
-          keyEvent.preventDefault()
-
           return
         }
 
-        // defer update to next frame so cursor has already moved
-        requestAnimationFrame(() => update())
+        const newPosition = isLeftMove ? cursorPosition - 1 : cursorPosition + 1
+        getInput()?.setSelectionRange(newPosition, newPosition)
+
+        update()
       }
     },
     { signal }
