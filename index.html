@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pin-input · dev lab</title>
+    <script type="module" src="/src/pin-input.ts"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #f6f8fa;
+        --surface: #ffffff;
+        --border: #d0d7de;
+        --text: #0d1117;
+        --muted: #6e7681;
+        --accent: #58a6ff;
+        --green: #1a7f37;
+        --red: #cf222e;
+        --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      }
+
+      body {
+        font-family: var(--font-mono);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 13px;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        min-height: 100vh;
+      }
+
+      header {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 1rem;
+      }
+
+      header h1 {
+        font-size: 15px;
+        color: var(--accent);
+      }
+
+      header span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      main {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      /* ── Section headings (shared) ── */
+      .cases-section,
+      .log-section,
+      .api-section,
+      .form-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .cases-section h2,
+      .log-section h2,
+      .api-section h2,
+      .form-section h2 {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .case {
+        background: var(--surface);
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .case-label {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .case-label span {
+        color: var(--accent);
+      }
+
+      .case-body {
+        display: flex;
+        align-items: center;
+        min-height: 56px;
+      }
+
+      /* ── Default pin-input slot styles shared across all cases ── */
+      pin-input::part(wrapper) {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      pin-input::part(slot) {
+        width: 40px;
+        height: 48px;
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-mono);
+        font-size: 1rem;
+        color: var(--text);
+        background: var(--bg);
+      }
+
+      pin-input::part(slot filled) {
+        background: var(--surface);
+        border-color: #adbac7;
+      }
+
+      pin-input::part(slot active) {
+        background: var(--surface);
+        border-color: var(--accent);
+        outline: none;
+      }
+
+      pin-input::part(slot error) {
+        border-color: var(--red);
+        background: #fff0f0;
+      }
+
+      pin-input::part(slot selected) {
+        background: rgba(88, 166, 255, 0.1);
+        border-color: var(--accent);
+      }
+
+      pin-input::part(slot masked) {
+        color: var(--accent);
+      }
+
+      pin-input[disabled]::part(slot) {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      pin-input::part(cursor) {
+        width: 1.5px;
+        height: 20px;
+        background: var(--accent);
+        animation: blink 1s step-end infinite;
+      }
+
+      pin-input::part(separator) {
+        width: 10px;
+        height: 2px;
+        background: var(--border);
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* ── Events log ── */
+      .log-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .log-panel {
+        background: var(--surface);
+        padding: 1rem;
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .log-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .log-panel-title {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .log-panel-title .event-name {
+        color: var(--green);
+      }
+
+      .clear-btn {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--muted);
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 2px 6px;
+        cursor: pointer;
+      }
+
+      .clear-btn:hover {
+        color: var(--text);
+        border-color: #484f58;
+      }
+
+      .log-entries {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-height: 80px;
+        max-height: 160px;
+        overflow-y: auto;
+      }
+
+      .log-entry {
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .log-entry .ts {
+        color: var(--border);
+        flex-shrink: 0;
+      }
+      .log-entry .val {
+        color: var(--text);
+      }
+      .log-entry.complete .val {
+        color: var(--green);
+      }
+
+      .log-input-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+
+      .log-input-row pin-input {
+        flex-shrink: 0;
+      }
+
+      /* ── JS API section ── */
+      .api-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .api-case {
+        background: var(--surface);
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .api-case-label {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .api-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      button {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text);
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 4px 10px;
+        cursor: pointer;
+        transition: border-color 0.1s;
+      }
+
+      button:hover {
+        border-color: #adbac7;
+      }
+      button.active {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      input[type='text'] {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text);
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 4px 8px;
+        width: 120px;
+        outline: none;
+      }
+
+      input[type='text']:focus {
+        border-color: var(--accent);
+      }
+
+      /* ── Form section ── */
+      .form-wrapper {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .form-wrapper form {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .form-output {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        min-height: 18px;
+      }
+
+      .form-output span {
+        color: var(--green);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>&lt;pin-input&gt; dev lab</h1>
+      <span>loads from /src/pin-input.ts</span>
+    </header>
+
+    <main>
+      <!-- ── Attribute cases ── -->
+      <section class="cases-section">
+        <h2>Attributes</h2>
+        <div class="grid">
+          <article class="case">
+            <p class="case-label">default <span>(length=6)</span></p>
+            <div class="case-body">
+              <pin-input></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">length <span>= 4</span></p>
+            <div class="case-body">
+              <pin-input length="4"></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">length <span>= 8</span></p>
+            <div class="case-body">
+              <pin-input length="8"></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">value <span>= "123456"</span> (prefilled)</p>
+            <div class="case-body">
+              <pin-input value="123456"></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">value <span>= "123"</span> (partial)</p>
+            <div class="case-body">
+              <pin-input value="123"></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">mask</p>
+            <div class="case-body">
+              <pin-input mask value="1234"></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">invalid</p>
+            <div class="case-body">
+              <pin-input invalid value="1234"></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">disabled</p>
+            <div class="case-body">
+              <pin-input disabled value="123"></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">separators <span>= "3"</span></p>
+            <div class="case-body">
+              <pin-input separators="3"></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">separators <span>= "2,4"</span></p>
+            <div class="case-body">
+              <pin-input length="6" separators="2,4"></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">
+              pattern <span>= "[a-zA-Z]"</span> (alpha only)
+            </p>
+            <div class="case-body">
+              <pin-input pattern="[a-zA-Z]" inputmode="text"></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">
+              pattern <span>= "[a-zA-Z0-9]"</span> (alphanumeric)
+            </p>
+            <div class="case-body">
+              <pin-input pattern="[a-zA-Z0-9]" inputmode="text"></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">autofocus</p>
+            <div class="case-body">
+              <pin-input autofocus></pin-input>
+            </div>
+          </article>
+
+          <article class="case">
+            <p class="case-label">aria-label <span>+</span> aria-describedby</p>
+            <div class="case-body" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+              <p id="pin-hint" style="font-size: 11px; color: var(--muted);">Enter the 6-digit code sent to your phone</p>
+              <pin-input aria-label="One-time password" aria-describedby="pin-hint"></pin-input>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ── Events log ── -->
+      <section class="log-section">
+        <h2>Events</h2>
+        <div class="log-input-row">
+          <pin-input
+            id="log-input"
+            length="6"
+            autocomplete="one-time-code"
+          ></pin-input>
+          <span style="color: var(--muted); font-size: 12px"
+            >Type to trigger events →</span
+          >
+        </div>
+        <div class="log-grid">
+          <section class="log-panel">
+            <header class="log-panel-header">
+              <span class="log-panel-title"
+                ><span class="event-name">pin-change</span></span
+              >
+              <button class="clear-btn" onclick="clearLog('change-log')">
+                clear
+              </button>
+            </header>
+            <ul class="log-entries" id="change-log"></ul>
+          </section>
+          <section class="log-panel">
+            <header class="log-panel-header">
+              <span class="log-panel-title"
+                ><span class="event-name">pin-complete</span></span
+              >
+              <button class="clear-btn" onclick="clearLog('complete-log')">
+                clear
+              </button>
+            </header>
+            <ul class="log-entries" id="complete-log"></ul>
+          </section>
+        </div>
+      </section>
+
+      <!-- ── JS API ── -->
+      <section class="api-section">
+        <h2>JS API</h2>
+        <div class="api-grid">
+          <article class="api-case">
+            <p class="api-case-label">set value programmatically</p>
+            <div class="case-body">
+              <pin-input id="api-value"></pin-input>
+            </div>
+            <div class="api-controls">
+              <input
+                type="text"
+                id="api-value-input"
+                placeholder="e.g. 123456"
+                maxlength="6"
+              />
+              <button onclick="setApiValue()">set</button>
+              <button onclick="document.getElementById('api-value').value = ''">
+                clear
+              </button>
+            </div>
+          </article>
+
+          <article class="api-case">
+            <p class="api-case-label">toggle disabled</p>
+            <div class="case-body">
+              <pin-input id="api-disabled" value="42"></pin-input>
+            </div>
+            <div class="api-controls">
+              <button id="btn-disabled" onclick="toggleDisabled()">
+                enable / disable
+              </button>
+            </div>
+          </article>
+
+          <article class="api-case">
+            <p class="api-case-label">toggle invalid</p>
+            <div class="case-body">
+              <pin-input id="api-invalid" value="1234"></pin-input>
+            </div>
+            <div class="api-controls">
+              <button onclick="toggleInvalid()">toggle invalid</button>
+            </div>
+          </article>
+
+          <article class="api-case">
+            <p class="api-case-label">toggle mask</p>
+            <div class="case-body">
+              <pin-input id="api-mask" value="1234"></pin-input>
+            </div>
+            <div class="api-controls">
+              <button onclick="toggleMask()">toggle mask</button>
+            </div>
+          </article>
+
+          <article class="api-case">
+            <p class="api-case-label">change length dynamically</p>
+            <div class="case-body">
+              <pin-input id="api-length" length="4"></pin-input>
+            </div>
+            <div class="api-controls">
+              <button onclick="setLength(4)">4</button>
+              <button onclick="setLength(6)">6</button>
+              <button onclick="setLength(8)">8</button>
+            </div>
+          </article>
+
+          <article class="api-case">
+            <p class="api-case-label">change separators dynamically</p>
+            <div class="case-body">
+              <pin-input id="api-sep" length="6"></pin-input>
+            </div>
+            <div class="api-controls">
+              <button onclick="setSep('')">none</button>
+              <button onclick="setSep('3')">3</button>
+              <button onclick="setSep('2,4')">2,4</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ── Form participation ── -->
+      <section class="form-section">
+        <h2>Form participation</h2>
+        <div class="form-wrapper">
+          <form id="otp-form" onsubmit="handleSubmit(event)">
+            <pin-input
+              name="otp"
+              required
+              autocomplete="one-time-code"
+            ></pin-input>
+            <button type="submit">Submit</button>
+            <button type="reset">Reset</button>
+          </form>
+          <output class="form-output" id="form-output">
+            Fill all 6 slots and submit
+          </output>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // ── Events log ──
+      const logInput = document.getElementById('log-input')
+
+      logInput.addEventListener('pin-change', (e) =>
+        appendLog('change-log', e.detail.value)
+      )
+      logInput.addEventListener('pin-complete', (e) =>
+        appendLog('complete-log', e.detail.value, true)
+      )
+
+      function appendLog(id, value, complete = false) {
+        const container = document.getElementById(id)
+        const entry = document.createElement('li')
+        entry.className = 'log-entry' + (complete ? ' complete' : '')
+        const ts = new Date().toLocaleTimeString('en', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        })
+        entry.innerHTML = `<span class="ts">${ts}</span><span class="val">"${value}"</span>`
+        container.prepend(entry)
+      }
+
+      function clearLog(id) {
+        document.getElementById(id).innerHTML = ''
+      }
+
+      // ── JS API ──
+      function setApiValue() {
+        const val = document.getElementById('api-value-input').value
+        document.getElementById('api-value').value = val
+      }
+
+      function toggleDisabled() {
+        const el = document.getElementById('api-disabled')
+        el.disabled = !el.disabled
+      }
+
+      function toggleInvalid() {
+        const el = document.getElementById('api-invalid')
+        el.invalid = !el.invalid
+      }
+
+      function toggleMask() {
+        const el = document.getElementById('api-mask')
+        el.mask = !el.mask
+      }
+
+      function setLength(n) {
+        document.getElementById('api-length').length = n
+      }
+
+      function setSep(val) {
+        const el = document.getElementById('api-sep')
+        if (val) el.separators = val
+        else el.removeAttribute('separators')
+      }
+
+      // ── Form ──
+      function handleSubmit(e) {
+        e.preventDefault()
+        const data = new FormData(e.target)
+        const otp = data.get('otp')
+        const out = document.getElementById('form-output')
+        out.innerHTML = `Submitted: <span>${otp}</span>`
+      }
+    </script>
+  </body>
+</html>
