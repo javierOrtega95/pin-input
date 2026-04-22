@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0] - 2026-04-23
+
+### Added
+
+- `Ctrl+X` / `Cmd+X` cuts the current value to the clipboard and clears all slots when a selection is active (after `Ctrl+A` or double click), matching native input behaviour.
+
 ## [0.1.4] - 2026-04-22
 
 ### Fixed
