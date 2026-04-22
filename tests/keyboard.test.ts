@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { userEvent } from 'vitest/browser'
 import { getInput, getPinInput, getSlots } from './helpers'
 
@@ -244,6 +244,103 @@ describe('keyboard', () => {
       await userEvent.keyboard('{Control>}{ArrowRight}{/Control}')
 
       expect(getInput()?.selectionStart).toBe(3)
+    })
+  })
+
+  describe('cut (Ctrl+X)', () => {
+    let writeText: ReturnType<typeof vi.spyOn>
+
+    beforeEach(() => {
+      writeText = vi
+        .spyOn(navigator.clipboard, 'writeText')
+        .mockResolvedValue()
+    })
+
+    afterEach(() => {
+      writeText.mockRestore()
+    })
+
+    it('clears all slots with Ctrl+A + Ctrl+X', async () => {
+      const $pinInput = getPinInput()!
+
+      await userEvent.click($pinInput)
+      await userEvent.keyboard('123')
+      await userEvent.keyboard('{Control>}a{/Control}')
+      await userEvent.keyboard('{Control>}x{/Control}')
+
+      const $slots = getSlots()
+
+      $slots.forEach((slot) => {
+        expect(slot.textContent).toBe('')
+      })
+    })
+
+    it('copies value to clipboard with Ctrl+A + Ctrl+X', async () => {
+      const $pinInput = getPinInput()!
+
+      await userEvent.click($pinInput)
+      await userEvent.keyboard('123')
+      await userEvent.keyboard('{Control>}a{/Control}')
+      await userEvent.keyboard('{Control>}x{/Control}')
+
+      expect(writeText).toHaveBeenCalledWith('123')
+    })
+
+    it('clears all slots with Cmd+X (Meta key)', async () => {
+      const $pinInput = getPinInput()!
+
+      await userEvent.click($pinInput)
+      await userEvent.keyboard('123')
+      await userEvent.keyboard('{Control>}a{/Control}')
+      await userEvent.keyboard('{Meta>}x{/Meta}')
+
+      const $slots = getSlots()
+
+      $slots.forEach((slot) => {
+        expect(slot.textContent).toBe('')
+      })
+    })
+
+    it('clears all slots with double click + Ctrl+X', async () => {
+      const $pinInput = getPinInput()!
+
+      await userEvent.click($pinInput)
+      await userEvent.keyboard('123')
+      await userEvent.dblClick($pinInput)
+      await userEvent.keyboard('{Control>}x{/Control}')
+
+      const $slots = getSlots()
+
+      $slots.forEach((slot) => {
+        expect(slot.textContent).toBe('')
+      })
+    })
+
+    it('does nothing with Ctrl+X without selection', async () => {
+      const $pinInput = getPinInput()!
+
+      await userEvent.click($pinInput)
+      await userEvent.keyboard('123')
+      await userEvent.keyboard('{Control>}x{/Control}')
+
+      const $slots = getSlots()
+
+      expect($slots[0].textContent).toBe('1')
+      expect($slots[1].textContent).toBe('2')
+      expect($slots[2].textContent).toBe('3')
+    })
+
+    it('does nothing with Ctrl+X when input is empty', async () => {
+      const $pinInput = getPinInput()!
+
+      await userEvent.click($pinInput)
+      await userEvent.keyboard('{Control>}x{/Control}')
+
+      const $slots = getSlots()
+
+      $slots.forEach((slot) => {
+        expect(slot.textContent).toBe('')
+      })
     })
   })
 

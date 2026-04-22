@@ -77,6 +77,19 @@ export function setupKeydownListener(
         return
       }
 
+      // support ctrl/meta + x to cut the current value when selecting
+      if (keyEvent.key === Key.X && (keyEvent.ctrlKey || keyEvent.metaKey)) {
+        if (!getIsSelecting() || getCurrentValue().length === 0) return
+
+        keyEvent.preventDefault()
+
+        void navigator.clipboard.writeText(getCurrentValue()).catch(() => {})
+
+        clearSelection()
+
+        return
+      }
+
       // when input is complete and cursor is on a filled slot,
       // handle replacement directly to avoid maxlength issues
       const isComplete = getCurrentValue().length === getLength()

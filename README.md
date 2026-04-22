@@ -36,7 +36,7 @@ yarn add @javierortega95/pin-input
 Or via CDN:
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/@javierortega95/pin-input@0.1.2/dist/pin-input.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@javierortega95/pin-input@0.2.0/dist/pin-input.js"></script>
 ```
 
 ---
