@@ -286,6 +286,36 @@ describe('keyboard', () => {
       expect(writeText).toHaveBeenCalledWith('123')
     })
 
+    it('clears all slots with Cmd+X (Meta key)', async () => {
+      const $pinInput = getPinInput()!
+
+      await userEvent.click($pinInput)
+      await userEvent.keyboard('123')
+      await userEvent.keyboard('{Control>}a{/Control}')
+      await userEvent.keyboard('{Meta>}x{/Meta}')
+
+      const $slots = getSlots()
+
+      $slots.forEach((slot) => {
+        expect(slot.textContent).toBe('')
+      })
+    })
+
+    it('clears all slots with double click + Ctrl+X', async () => {
+      const $pinInput = getPinInput()!
+
+      await userEvent.click($pinInput)
+      await userEvent.keyboard('123')
+      await userEvent.dblClick($pinInput)
+      await userEvent.keyboard('{Control>}x{/Control}')
+
+      const $slots = getSlots()
+
+      $slots.forEach((slot) => {
+        expect(slot.textContent).toBe('')
+      })
+    })
+
     it('does nothing with Ctrl+X without selection', async () => {
       const $pinInput = getPinInput()!
 
