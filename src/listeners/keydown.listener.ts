@@ -83,7 +83,7 @@ export function setupKeydownListener(
 
         keyEvent.preventDefault()
 
-        navigator.clipboard.writeText(getCurrentValue())
+        void navigator.clipboard.writeText(getCurrentValue()).catch(() => {})
 
         clearSelection()
 
