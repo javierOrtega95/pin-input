@@ -45,12 +45,14 @@ export function setupFocusListener(
     'focus',
     () => {
       setIsFocused(true)
-
-      // place cursor at end of current value on focus
-      const cursorPos = Math.min(getCurrentValue().length, getLength() - 1)
-
-      getInput()?.setSelectionRange(cursorPos, cursorPos)
       update()
+
+      // defer so our position wins over the browser's default tab-focus selection
+      requestAnimationFrame(() => {
+        const cursorPos = Math.min(getCurrentValue().length, getLength() - 1)
+        getInput()?.setSelectionRange(cursorPos, cursorPos)
+        update()
+      })
     },
     { signal }
   )
