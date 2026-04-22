@@ -656,7 +656,13 @@
           minute: '2-digit',
           second: '2-digit',
         })
-        entry.innerHTML = `<span class="ts">${ts}</span><span class="val">"${value}"</span>`
+        const tsSpan = document.createElement('span')
+        tsSpan.className = 'ts'
+        tsSpan.textContent = ts
+        const valSpan = document.createElement('span')
+        valSpan.className = 'val'
+        valSpan.textContent = `"${value}"`
+        entry.append(tsSpan, valSpan)
         container.prepend(entry)
       }
 
@@ -701,7 +707,10 @@
         const data = new FormData(e.target)
         const otp = data.get('otp')
         const out = document.getElementById('form-output')
-        out.innerHTML = `Submitted: <span>${otp}</span>`
+        const valueSpan = document.createElement('span')
+        valueSpan.textContent = String(otp ?? '')
+        out.textContent = 'Submitted: '
+        out.appendChild(valueSpan)
       }
     </script>
   </body>
