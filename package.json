@@ -37,7 +37,7 @@
   "customElements": "custom-elements.json",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && tsc --emitDeclarationOnly",
+    "build": "vite build && tsc --emitDeclarationOnly && cem analyze --globs src/pin-input.ts",
     "preview": "vite preview",
     "test": "vitest",
     "analyze": "cem analyze --globs src/pin-input.ts"
