@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.4] - 2026-04-22
+
+### Fixed
+
+- Clicking to focus now correctly positions the cursor on the next empty slot instead of always landing on the first slot. The previous check used `document.activeElement` to verify focus before repositioning the cursor, but in Shadow DOM `document.activeElement` returns the host element (`<pin-input>`), not the internal `<input>` — so the check always failed and the cursor was never repositioned. Fixed by using `input.matches(':focus')` which correctly resolves focus within the shadow root.
+
 ## [0.1.3] - 2026-04-22
 
 ### Fixed

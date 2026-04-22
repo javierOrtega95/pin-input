@@ -51,7 +51,9 @@ export function setupFocusListener(
       requestAnimationFrame(() => {
         const input = getInput()
 
-        if (!input?.isConnected || document.activeElement !== input) return
+        // document.activeElement returns the shadow host in shadow DOM, not the
+        // internal input — use :focus to correctly detect focus within the shadow root
+        if (!input?.isConnected || !input.matches(':focus')) return
 
         const cursorPos = Math.min(getCurrentValue().length, getLength() - 1)
         input.setSelectionRange(cursorPos, cursorPos)
