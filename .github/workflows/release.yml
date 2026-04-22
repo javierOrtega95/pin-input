@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -27,7 +31,7 @@ jobs:
 
       - name: Get version
         id: pkg
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        run: echo "version=$(node -p 'require("./package.json").version')" >> $GITHUB_OUTPUT
 
       - name: Check if already published
         id: check
@@ -41,6 +45,14 @@ jobs:
       - name: Install dependencies
         if: steps.check.outputs.published == 'false'
         run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        if: steps.check.outputs.published == 'false'
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Test
+        if: steps.check.outputs.published == 'false'
+        run: pnpm exec vitest run
 
       - name: Build
         if: steps.check.outputs.published == 'false'
