@@ -1,6 +1,6 @@
 {
   "name": "@javierortega95/pin-input",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A headless, accessible PIN/OTP input web component. Framework-agnostic, zero dependencies, with native form participation.",
   "type": "module",
   "keywords": [
