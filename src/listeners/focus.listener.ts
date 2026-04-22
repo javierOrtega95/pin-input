@@ -49,8 +49,12 @@ export function setupFocusListener(
 
       // defer so our position wins over the browser's default tab-focus selection
       requestAnimationFrame(() => {
+        const input = getInput()
+
+        if (!input?.isConnected || document.activeElement !== input) return
+
         const cursorPos = Math.min(getCurrentValue().length, getLength() - 1)
-        getInput()?.setSelectionRange(cursorPos, cursorPos)
+        input.setSelectionRange(cursorPos, cursorPos)
         update()
       })
     },
