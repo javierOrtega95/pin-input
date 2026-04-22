@@ -21,6 +21,7 @@ export enum Key {
   Home = 'Home',
   End = 'End',
   A = 'a',
+  X = 'x',
 }
 
 /** Keys that move the cursor to the previous slot or the start. */
