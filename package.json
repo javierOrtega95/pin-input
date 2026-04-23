@@ -49,6 +49,7 @@
     "@vitest/browser-playwright": "^4.1.1",
     "eslint": "^10.0.3",
     "globals": "^17.4.0",
+    "playwright": "^1.59.1",
     "prettier": "^3.8.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.57.1",
