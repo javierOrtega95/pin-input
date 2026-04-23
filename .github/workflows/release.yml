@@ -88,7 +88,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Download build artifact
         uses: actions/download-artifact@v4
@@ -97,8 +96,6 @@ jobs:
 
       - name: Publish to npm
         run: npm publish --access public --provenance
-        env:
-          NPM_CONFIG_LOGLEVEL: verbose
 
       - name: Create tag and GitHub Release
         run: |
