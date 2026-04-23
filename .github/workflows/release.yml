@@ -97,6 +97,8 @@ jobs:
 
       - name: Publish to npm
         run: npm publish --access public --provenance
+        env:
+          NPM_CONFIG_LOGLEVEL: verbose
 
       - name: Create tag and GitHub Release
         run: |
