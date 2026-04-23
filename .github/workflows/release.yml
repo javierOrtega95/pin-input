@@ -48,7 +48,7 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.check.outputs.published == 'false'
-        run: pnpm exec playwright install chromium --with-deps
+        run: ./node_modules/.bin/playwright install chromium --with-deps
 
       - name: Test
         if: steps.check.outputs.published == 'false'
