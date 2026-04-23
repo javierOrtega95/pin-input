@@ -13,10 +13,13 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  release:
+  check-and-test:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+    outputs:
+      version: ${{ steps.pkg.outputs.version }}
+      published: ${{ steps.check.outputs.published }}
     steps:
       - uses: actions/checkout@v4
 
@@ -27,7 +30,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Get version
         id: pkg
@@ -60,16 +62,45 @@ jobs:
         if: steps.check.outputs.published == 'false'
         run: pnpm run build
 
-      - name: Publish to npm
+      - name: Upload build artifact
         if: steps.check.outputs.published == 'false'
-        run: pnpm publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-dist
+          path: |
+            dist
+            custom-elements.json
+
+  publish:
+    needs: check-and-test
+    if: needs.check-and-test.outputs.published == 'false'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: package-dist
+
+      - name: Publish to npm
+        run: pnpm publish --access public --no-git-checks --provenance
 
       - name: Create tag and GitHub Release
-        if: steps.check.outputs.published == 'false'
         run: |
-          VERSION=${{ steps.pkg.outputs.version }}
+          VERSION=${{ needs.check-and-test.outputs.version }}
           awk "/^## \[$VERSION\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md > /tmp/release-notes.md
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
