@@ -45,6 +45,8 @@ jobs:
       - name: Install dependencies
         if: steps.check.outputs.published == 'false'
         run: pnpm install --frozen-lockfile
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
 
       - name: Install Playwright browsers
         if: steps.check.outputs.published == 'false'
