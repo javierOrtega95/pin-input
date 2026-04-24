@@ -42,6 +42,12 @@
     "test": "vitest",
     "analyze": "cem analyze --globs src/pin-input.ts"
   },
+  "pnpm": {
+    "overrides": {
+      "flatted": "^3.4.2",
+      "picomatch@^4.0.0": "^4.0.4"
+    }
+  },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "^0.11.0",
     "@eslint/js": "^10.0.1",
@@ -53,7 +59,7 @@
     "prettier": "^3.8.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.57.1",
-    "vite": "^8.0.0",
+    "vite": "^8.0.10",
     "vitest": "^4.1.1"
   }
 }
