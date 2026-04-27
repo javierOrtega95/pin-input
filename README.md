@@ -188,6 +188,22 @@ bootstrapApplication(App)
 | `separator`     | A separator element between slots                 |
 | `cursor`        | The cursor element inside the active empty slot   |
 
+
+### Keyboard Navigation
+
+| Key | Action |
+| --- | ------ |
+| `Tab` | Focus in / out of the component as a single unit |
+| `←` `→` | Move between slots |
+| `↑` / `Home` | Jump to first slot |
+| `↓` / `End` | Jump to last filled slot |
+| `Ctrl/⌘` + `←` | Jump to first slot |
+| `Ctrl/⌘` + `→` | Jump to last filled slot |
+| `Backspace` | Delete character and move back |
+| `Delete` | Delete character at current position |
+| `Ctrl/⌘` + `A` | Select all slots |
+| `Ctrl/⌘` + `X` | Cut selection to clipboard |
+
 ---
 
 ## Styling
