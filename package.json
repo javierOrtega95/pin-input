@@ -18,6 +18,9 @@
     "url": "git+https://github.com/javierOrtega95/pin-input.git"
   },
   "homepage": "https://javierortega95.github.io/pin-input",
+  "engines": {
+    "node": ">=24"
+  },
   "main": "./dist/pin-input.umd.cjs",
   "module": "./dist/pin-input.js",
   "types": "./dist/types/pin-input.d.ts",
