@@ -3,7 +3,7 @@
 > A headless, accessible PIN/OTP web component. Framework-agnostic, zero dependencies, with native form participation.
 
 [![npm version](https://img.shields.io/npm/v/@javierortega95/pin-input?color=58a6ff)](https://www.npmjs.com/package/@javierortega95/pin-input)
-[![npm bundle size](https://img.shields.io/bundlephobia/minzip/@javierortega95/pin-input?color=58a6ff)](https://bundlephobia.com/package/@javierortega95/pin-input)
+[![bundle size](https://deno.bundlejs.com/badge?q=@javierortega95/pin-input)](https://bundlejs.com/?q=@javierortega95/pin-input)
 [![license](https://img.shields.io/npm/l/@javierortega95/pin-input?color=58a6ff)](./LICENSE)
 
 ```html
